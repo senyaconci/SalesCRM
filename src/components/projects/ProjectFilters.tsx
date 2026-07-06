@@ -49,7 +49,7 @@ export function ProjectFilters({
       <Input
         defaultValue={val("q")}
         placeholder="Search title, org, vendor, state…"
-        className="w-64"
+        className="!w-72"
         onKeyDown={(e) => {
           if (e.key === "Enter") setParam("q", e.currentTarget.value);
         }}
@@ -57,7 +57,7 @@ export function ProjectFilters({
       <Select
         value={val("status")}
         onChange={(e) => setParam("status", e.target.value)}
-        className="w-auto"
+        className="!w-44"
       >
         <option value="">All statuses</option>
         {PROJECT_STATUSES.map((s) => (
@@ -69,7 +69,7 @@ export function ProjectFilters({
       <Select
         value={val("stage")}
         onChange={(e) => setParam("stage", e.target.value)}
-        className="w-auto"
+        className="!w-36"
       >
         <option value="">All stages</option>
         {STAGES.map((s) => (
@@ -81,7 +81,7 @@ export function ProjectFilters({
       <Select
         value={val("category")}
         onChange={(e) => setParam("category", e.target.value)}
-        className="w-auto"
+        className="!w-40"
       >
         <option value="">All categories</option>
         {CATEGORIES.map((c) => (
@@ -93,7 +93,7 @@ export function ProjectFilters({
       <Select
         value={val("priority")}
         onChange={(e) => setParam("priority", e.target.value)}
-        className="w-auto"
+        className="!w-36"
       >
         <option value="">All priorities</option>
         {PRIORITIES.map((p) => (
@@ -105,7 +105,7 @@ export function ProjectFilters({
       <Input
         defaultValue={val("state")}
         placeholder="State"
-        className="w-20"
+        className="!w-24"
         onKeyDown={(e) => {
           if (e.key === "Enter") setParam("state", e.currentTarget.value);
         }}
@@ -114,7 +114,7 @@ export function ProjectFilters({
         <Select
           value={val("sdr")}
           onChange={(e) => setParam("sdr", e.target.value)}
-          className="w-auto"
+          className="!w-40"
         >
           <option value="">All SDRs</option>
           {sdrs.map((s) => (
@@ -128,7 +128,7 @@ export function ProjectFilters({
         <Select
           value={val("vendor")}
           onChange={(e) => setParam("vendor", e.target.value)}
-          className="w-auto"
+          className="!w-44"
         >
           <option value="">All vendors</option>
           {vendors.map((v) => (
