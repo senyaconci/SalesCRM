@@ -23,8 +23,12 @@ export interface FileStorage {
   read(key: string): Promise<Buffer>;
 }
 
-const STORAGE_DIR =
-  process.env.FILE_STORAGE_DIR || path.join(process.cwd(), "storage", "uploads");
+function storageDir(): string {
+  return (
+    process.env.FILE_STORAGE_DIR ||
+    path.join(process.cwd(), "storage", "uploads")
+  );
+}
 
 function sanitizeFileName(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120) || "file";
@@ -34,7 +38,7 @@ class LocalFileStorage implements FileStorage {
   async save(file: File, keyPrefix = "projects"): Promise<StoredFile> {
     const originalName = sanitizeFileName(file.name || "upload.bin");
     const key = `${keyPrefix}/${randomUUID()}-${originalName}`;
-    const destPath = path.join(STORAGE_DIR, key);
+    const destPath = path.join(storageDir(), key);
     await mkdir(path.dirname(destPath), { recursive: true });
 
     const bytes = Buffer.from(await file.arrayBuffer());
@@ -49,7 +53,7 @@ class LocalFileStorage implements FileStorage {
 
   async read(key: string): Promise<Buffer> {
     const safeKey = key.replace(/\.\.(\/|\\)/g, "");
-    const filePath = path.join(STORAGE_DIR, safeKey);
+    const filePath = path.join(storageDir(), safeKey);
     return readFile(filePath);
   }
 }
