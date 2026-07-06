@@ -1,0 +1,364 @@
+// CapEx Signal — project-based outreach CRM
+// Prisma schema. See product spec for domain notes.
+
+generator client {
+  provider      = "prisma-client-js"
+  // "native" for local dev; rhel target covers Vercel's serverless runtime.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  MANAGER
+  SDR
+}
+
+enum OwnerOrgType {
+  HOSPITAL
+  UNIVERSITY
+  COLLEGE
+  SCHOOL_DISTRICT
+  HIGH_SCHOOL
+  CITY
+  COUNTY
+  STATE_AGENCY
+  AIRPORT
+  WATER_DISTRICT
+  OTHER
+}
+
+enum ProjectCategory {
+  BOILERS
+  STEAM
+  THERMAL_PLANT
+  WATER
+  WASTEWATER
+  ELECTRICAL
+  HVAC
+  OTHER
+}
+
+enum ProjectStage {
+  IDENTIFIED
+  PROPOSED
+  PLANNING
+  FUNDED
+  DESIGN
+  PRE_RFP
+  RFP
+  CONSTRUCTION
+  CLOSED
+  UNKNOWN
+}
+
+enum ProjectStatus {
+  NEW
+  ASSIGNED
+  OUTREACH_STARTED
+  CONTACTED
+  VALIDATING
+  VALIDATED_RELEVANT
+  VALIDATED_NOT_RELEVANT
+  INTRO_REQUESTED
+  INTRO_MADE
+  CUSTOMER_REVIEWING
+  FOLLOW_UP_LATER
+  CLOSED_WON
+  CLOSED_LOST
+  DEAD
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ContactSide {
+  BUYER
+  VENDOR
+  INTERNAL
+  OTHER
+}
+
+enum ContactStatus {
+  NOT_CONTACTED
+  CALL_ATTEMPTED
+  LEFT_VOICEMAIL
+  EMAIL_SENT
+  SMS_SENT
+  REPLIED
+  CONNECTED
+  WRONG_PERSON
+  REFERRED
+  INTERESTED
+  NOT_INTERESTED
+  DO_NOT_CONTACT
+  INVALID
+}
+
+enum ContactRelevance {
+  PRIMARY_DECISION_MAKER
+  INFLUENCER
+  PROCUREMENT
+  FACILITIES
+  ENGINEERING
+  ADMIN
+  UNKNOWN
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  SMS
+  NOTE
+  STATUS_CHANGE
+  ASSIGNMENT_CHANGE
+  FOLLOW_UP
+  SYSTEM
+}
+
+enum ActivityDirection {
+  OUTBOUND
+  INBOUND
+  INTERNAL
+}
+
+enum ActivityOutcome {
+  NO_ANSWER
+  LEFT_VOICEMAIL
+  CONNECTED
+  SENT
+  REPLIED
+  BOUNCED
+  WRONG_PERSON
+  REFERRED
+  INTERESTED
+  NOT_INTERESTED
+  OTHER
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String?
+  role         Role     @default(SDR)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assignedProjects   Project[]                  @relation("AssignedSdr")
+  ownedProjects      Project[]                  @relation("ProjectOwner")
+  activities         Activity[]
+  notes              Note[]
+  workSessions       WorkSession[]
+  assignmentsMade    ProjectAssignmentHistory[] @relation("AssignedBy")
+  assignmentsTo      ProjectAssignmentHistory[] @relation("AssignedTo")
+}
+
+model VendorCustomer {
+  id                 String   @id @default(cuid())
+  name               String
+  website            String?
+  description        String?
+  targetGeography    String?
+  targetProjectTypes String?
+  notes              String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  projects Project[]
+  contacts Contact[]
+}
+
+model OwnerOrganization {
+  id        String       @id @default(cuid())
+  name      String
+  type      OwnerOrgType @default(OTHER)
+  website   String?
+  state     String?
+  city      String?
+  address   String?
+  notes     String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  projects Project[]
+  contacts Contact[]
+}
+
+model Project {
+  id           String          @id @default(cuid())
+  title        String
+  description  String?
+  summary      String?
+  category     ProjectCategory @default(OTHER)
+  stage        ProjectStage    @default(UNKNOWN)
+  status       ProjectStatus   @default(NEW)
+  priority     Priority        @default(MEDIUM)
+  budgetAmount Decimal?
+  budgetText   String?
+  locationCity String?
+  locationState String?
+  sourceUrl    String?
+  evidenceText String?
+  pdfUrl       String?
+  pdfFileName  String?
+
+  ownerOrganizationId String?
+  ownerOrganization   OwnerOrganization? @relation(fields: [ownerOrganizationId], references: [id])
+
+  vendorCustomerId String?
+  vendorCustomer   VendorCustomer? @relation(fields: [vendorCustomerId], references: [id])
+
+  assignedSdrId String?
+  assignedSdr   User?   @relation("AssignedSdr", fields: [assignedSdrId], references: [id])
+
+  projectOwnerId String?
+  projectOwner   User?   @relation("ProjectOwner", fields: [projectOwnerId], references: [id])
+
+  nextFollowUpAt DateTime?
+  lastActivityAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  contacts          Contact[]
+  activities        Activity[]
+  notes             Note[]
+  assignmentHistory ProjectAssignmentHistory[]
+
+  @@index([status])
+  @@index([stage])
+  @@index([assignedSdrId])
+  @@index([vendorCustomerId])
+  @@index([ownerOrganizationId])
+}
+
+model Contact {
+  id             String            @id @default(cuid())
+  projectId      String
+  project        Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  organizationId String?
+  organization   OwnerOrganization? @relation(fields: [organizationId], references: [id])
+
+  vendorCustomerId String?
+  vendorCustomer   VendorCustomer? @relation(fields: [vendorCustomerId], references: [id])
+
+  side       ContactSide      @default(BUYER)
+  firstName  String?
+  lastName   String?
+  fullName   String
+  title      String?
+  email      String?
+  phone      String?
+  mobilePhone String?
+  linkedinUrl String?
+  source     String?
+  status     ContactStatus    @default(NOT_CONTACTED)
+  relevance  ContactRelevance @default(UNKNOWN)
+  notes      String?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  activities Activity[]
+  noteItems  Note[]
+
+  @@index([projectId])
+  @@index([side])
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  userId String?
+  user   User?  @relation(fields: [userId], references: [id])
+
+  type      ActivityType
+  direction ActivityDirection @default(OUTBOUND)
+  subject   String?
+  body      String?
+  outcome   ActivityOutcome?
+
+  previousStatus String?
+  newStatus      String?
+
+  recordingUrl     String?
+  transcript       String?
+  externalProvider String?
+  externalId       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+  @@index([contactId])
+  @@index([createdAt])
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: SetNull)
+
+  userId String?
+  user   User?  @relation(fields: [userId], references: [id])
+
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model WorkSession {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startedAt       DateTime  @default(now())
+  endedAt         DateTime?
+  durationSeconds Int?
+  notes           String?
+
+  @@index([userId])
+}
+
+model ProjectAssignmentHistory {
+  id        String  @id @default(cuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  assignedToId String?
+  assignedTo   User?   @relation("AssignedTo", fields: [assignedToId], references: [id])
+
+  assignedById String?
+  assignedBy   User?   @relation("AssignedBy", fields: [assignedById], references: [id])
+
+  previousAssignedToId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+}
