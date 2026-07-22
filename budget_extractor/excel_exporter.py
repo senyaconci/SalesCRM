@@ -193,6 +193,17 @@ def _build_summary_sheet(wb: Workbook, output: FinalExtractionOutput) -> None:
         ("Pages Native Text", stats.pages_native_text),
         ("Pages OCR", stats.pages_ocr),
         ("Pages Failed", stats.pages_failed),
+        ("Scout Enabled", stats.scout_enabled),
+        ("Scout Model", stats.scout_model or ""),
+        ("Scout Primary Windows", stats.scout_primary_windows),
+        ("Scout Audit Windows", stats.scout_audit_windows),
+        ("Scout Failed Windows", stats.scout_failed_windows),
+        ("Scout Candidate Pages", stats.scout_candidate_pages),
+        ("Detailed-Extraction Pages", stats.heavy_pages_selected),
+        ("Pages Filtered Before Extraction", stats.pages_filtered_before_extraction),
+        ("Scout API Requests", stats.scout_api_requests),
+        ("Scout Prompt Tokens", stats.scout_prompt_tokens),
+        ("Scout Completion Tokens", stats.scout_completion_tokens),
     ]
 
     ws.append(["Field", "Value"])

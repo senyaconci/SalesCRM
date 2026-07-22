@@ -8,14 +8,26 @@ from dataclasses import dataclass
 # Official Z.AI list prices (USD per 1M tokens), GLM-5.2 / glm-ocr.
 PRICE_INPUT_PER_MTOK = {
     "glm-5.2": 1.40,
+    "glm-5": 1.00,
+    "glm-4.7": 0.60,
+    "glm-4.7-flashx": 0.07,
+    "glm-4.7-flash": 0.00,
     "glm-ocr": 0.03,
 }
 PRICE_OUTPUT_PER_MTOK = {
     "glm-5.2": 4.40,
+    "glm-5": 3.20,
+    "glm-4.7": 2.20,
+    "glm-4.7-flashx": 0.40,
+    "glm-4.7-flash": 0.00,
     "glm-ocr": 0.03,
 }
 PRICE_CACHED_INPUT_PER_MTOK = {
     "glm-5.2": 0.26,
+    "glm-5": 0.20,
+    "glm-4.7": 0.11,
+    "glm-4.7-flashx": 0.01,
+    "glm-4.7-flash": 0.00,
     "glm-ocr": 0.03,
 }
 

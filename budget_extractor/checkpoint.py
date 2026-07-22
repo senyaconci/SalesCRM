@@ -18,6 +18,8 @@ class RunManifest:
     failed_chunks: list[str] = field(default_factory=list)
     ocr_cache: dict[str, str] = field(default_factory=dict)
     extraction_cache: dict[str, str] = field(default_factory=dict)
+    scouting_completed: bool = False
+    scout_result: str | None = None
     consolidation_completed: bool = False
     exports_completed: bool = False
     updated_at: str = ""
@@ -30,6 +32,8 @@ class RunManifest:
             "failed_chunks": list(self.failed_chunks),
             "ocr_cache": dict(self.ocr_cache),
             "extraction_cache": dict(self.extraction_cache),
+            "scouting_completed": self.scouting_completed,
+            "scout_result": self.scout_result,
             "consolidation_completed": self.consolidation_completed,
             "exports_completed": self.exports_completed,
             "updated_at": self.updated_at,
@@ -44,6 +48,8 @@ class RunManifest:
             failed_chunks=list(data.get("failed_chunks", [])),
             ocr_cache=dict(data.get("ocr_cache", {})),
             extraction_cache=dict(data.get("extraction_cache", {})),
+            scouting_completed=bool(data.get("scouting_completed", False)),
+            scout_result=data.get("scout_result"),
             consolidation_completed=bool(data.get("consolidation_completed", False)),
             exports_completed=bool(data.get("exports_completed", False)),
             updated_at=str(data.get("updated_at", "")),
@@ -57,6 +63,7 @@ class CheckpointStore:
         self.output_dir = ensure_dir(output_dir)
         self.checkpoint_dir = ensure_dir(self.output_dir / "checkpoints")
         self.manifest_path = self.output_dir / "run_manifest.json"
+        self.scout_result_path = self.checkpoint_dir / "scout_result.json"
         self.manifest = RunManifest()
 
     def load_or_create(
@@ -109,6 +116,28 @@ class CheckpointStore:
 
     def write_json(self, path: Path, data: Any) -> None:
         atomic_write_json(path, data)
+
+    def scout_paths(self, scout_chunk_id: str) -> dict[str, Path]:
+        return {
+            "raw_response": self.checkpoint_dir / f"{scout_chunk_id}_raw_response.json",
+            "validated": self.checkpoint_dir / f"{scout_chunk_id}_validated.json",
+            "status": self.checkpoint_dir / f"{scout_chunk_id}_status.json",
+        }
+
+    def write_scout_raw_response(self, scout_chunk_id: str, data: Any) -> None:
+        atomic_write_json(self.scout_paths(scout_chunk_id)["raw_response"], data)
+
+    def write_scout_validated(self, scout_chunk_id: str, data: Any) -> None:
+        atomic_write_json(self.scout_paths(scout_chunk_id)["validated"], data)
+
+    def write_scout_status(self, scout_chunk_id: str, data: Any) -> None:
+        atomic_write_json(self.scout_paths(scout_chunk_id)["status"], data)
+
+    def save_scout_result(self, data: Any) -> None:
+        atomic_write_json(self.scout_result_path, data)
+        self.manifest.scouting_completed = True
+        self.manifest.scout_result = str(self.scout_result_path)
+        self.save_manifest()
 
     def mark_chunk_completed(self, chunk_id: str) -> None:
         if chunk_id not in self.manifest.completed_chunks:

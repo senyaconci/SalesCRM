@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "budget-project-extractor"
-version = "1.0.0"
+version = "1.1.0"
 description = "Extract capital projects from public-sector budget PDFs using Z.AI GLM"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "pytest-cov>=5.0"]
+dev = ["pytest>=8.0", "pytest-cov>=5.0", "ruff>=0.15.22"]
 
 [project.scripts]
 budget-extractor = "budget_extractor.cli:main"

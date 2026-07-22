@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from budget_extractor.config import AppConfig, LogLevel, OcrMode, load_config
+from budget_extractor.config import load_config
 from budget_extractor.extraction import ExtractionPipeline
 from budget_extractor.logging_utils import create_app_logger
 from budget_extractor.utils import is_url
@@ -52,6 +52,42 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["auto", "always", "never"],
         default="auto",
         help="OCR mode for low-text pages",
+    )
+    parser.add_argument(
+        "--scout",
+        choices=["auto", "never"],
+        default="auto",
+        help="Use a cheap high-recall model to filter pages before detailed extraction",
+    )
+    parser.add_argument(
+        "--scout-model",
+        default=None,
+        help="Cheap routing model (default from SCOUT_MODEL / glm-4.7-flash)",
+    )
+    parser.add_argument(
+        "--scout-chunk-pages",
+        type=int,
+        default=None,
+        help="Pages per cheap-model scout window (default 10)",
+    )
+    parser.add_argument(
+        "--scout-overlap-pages",
+        type=int,
+        default=None,
+        help="Overlap between scout windows (default 2)",
+    )
+    parser.add_argument(
+        "--scout-context-pages",
+        type=int,
+        default=None,
+        help="Adjacent pages added around scout hits (default 2)",
+    )
+    parser.add_argument(
+        "--no-scout-audit",
+        action="store_false",
+        dest="scout_audit_negatives",
+        default=None,
+        help="Disable the independent audit of fully rejected scout windows",
     )
     parser.add_argument(
         "--resume",
@@ -113,6 +149,12 @@ def main(argv: list[str] | None = None) -> int:
             chunk_pages=args.chunk_pages,
             overlap_pages=args.overlap_pages,
             ocr_mode=args.ocr,  # type: ignore[arg-type]
+            scout_mode=args.scout,  # type: ignore[arg-type]
+            scout_model=args.scout_model,
+            scout_chunk_pages=args.scout_chunk_pages,
+            scout_overlap_pages=args.scout_overlap_pages,
+            scout_context_pages=args.scout_context_pages,
+            scout_audit_negatives=args.scout_audit_negatives,
             resume=args.resume,
             force=args.force,
             start_page=args.start_page,
@@ -140,7 +182,10 @@ def main(argv: list[str] | None = None) -> int:
 
     logger.event(
         "INFO",
-        f"Configured model={config.model} ocr={config.ocr_mode} workers={config.max_workers}",
+        (
+            f"Configured model={config.model} scout={config.scout_mode}"
+            f"/{config.scout_model} ocr={config.ocr_mode} workers={config.max_workers}"
+        ),
         stage="startup",
     )
     # Never print the full API key.

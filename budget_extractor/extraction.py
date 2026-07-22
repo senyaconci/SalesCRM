@@ -42,6 +42,11 @@ from budget_extractor.schemas import (
     RunStatistics,
     ValidationIssue,
 )
+from budget_extractor.scouting import (
+    ProjectScout,
+    ScoutRunResult,
+    build_selected_extraction_chunks,
+)
 from budget_extractor.utils import atomic_write_json, atomic_write_text, pages_to_range_label
 from budget_extractor.validation import (
     parse_json_text,
@@ -60,6 +65,7 @@ class ExtractionPipeline:
         *,
         glm_client: GlmClient | None = None,
         ocr_client: OcrClient | None = None,
+        scout_client: GlmClient | None = None,
     ):
         self.config = config
         self.logger = logger
@@ -69,6 +75,7 @@ class ExtractionPipeline:
             glm_client.cost_tracker = self.cost_tracker  # type: ignore[attr-defined]
         self.ocr: OcrClient | None = None
         self._ocr_factory = ocr_client
+        self.scout_client = scout_client
         self.stats = RunStatistics()
         self.budget_stopped = False
 
@@ -132,13 +139,68 @@ class ExtractionPipeline:
         self.stats.pages_ocr = pages_ocr
         self.stats.pages_failed = len(pages_failed)
 
-        chunks = chunk_pages(
-            extracted.pages,
-            chunk_pages=self.config.chunk_pages,
-            overlap_pages=self.config.overlap_pages,
-        )
+        scout_result: ScoutRunResult | None = None
+        if self.config.scout_mode == "auto":
+            self.stats.scout_enabled = True
+            self.stats.scout_model = self.config.scout_model
+            try:
+                scout = ProjectScout(
+                    self.config,
+                    checkpoint,
+                    self.logger,
+                    cost_tracker=self.cost_tracker,
+                    client=self.scout_client,
+                )
+                scout_result = scout.run(
+                    extracted.pages,
+                    document_hash=document.sha256,
+                )
+                self.scout_client = scout.client
+                chunks = build_selected_extraction_chunks(
+                    extracted.pages,
+                    selected_pages=scout_result.selected_pages,
+                    chunk_size=self.config.chunk_pages,
+                    overlap=self.config.overlap_pages,
+                )
+                self.stats.scout_primary_windows = scout_result.primary_windows
+                self.stats.scout_audit_windows = scout_result.audit_windows
+                self.stats.scout_failed_windows = len(scout_result.failed_windows)
+                self.stats.scout_candidate_pages = len(scout_result.candidate_pages)
+                self.stats.heavy_pages_selected = len(scout_result.selected_pages)
+                self.stats.pages_filtered_before_extraction = len(
+                    scout_result.filtered_pages
+                )
+            except BudgetExceededError:
+                raise
+            except Exception as exc:  # noqa: BLE001
+                # Scouting is an optimization. Failure must not suppress projects.
+                self.logger.event(
+                    "WARNING",
+                    f"Scout stage failed; processing all pages: {exc}",
+                    stage="scout",
+                    model=self.config.scout_model,
+                    status="failed_open",
+                )
+                chunks = chunk_pages(
+                    extracted.pages,
+                    chunk_pages=self.config.chunk_pages,
+                    overlap_pages=self.config.overlap_pages,
+                )
+                self.stats.scout_failed_windows += 1
+                self.stats.heavy_pages_selected = len(extracted.pages)
+        else:
+            chunks = chunk_pages(
+                extracted.pages,
+                chunk_pages=self.config.chunk_pages,
+                overlap_pages=self.config.overlap_pages,
+            )
+            self.stats.heavy_pages_selected = len(extracted.pages)
         self.stats.chunks_total = len(chunks)
-        self.logger.event("INFO", f"Created {len(chunks)} extraction chunks", stage="chunking")
+        self.logger.event(
+            "INFO",
+            f"Created {len(chunks)} detailed extraction chunks",
+            stage="chunking",
+        )
 
         # Pass A
         validation_issues: list[ValidationIssue] = []
@@ -594,11 +656,28 @@ class ExtractionPipeline:
             return None
 
     def _refresh_api_stats(self) -> None:
-        self.stats.api_requests = self.glm.api_requests + (self.ocr.api_requests if self.ocr else 0)
-        self.stats.api_retries = self.glm.api_retries + (self.ocr.api_retries if self.ocr else 0)
-        self.stats.prompt_tokens = self.glm.prompt_tokens
-        self.stats.completion_tokens = self.glm.completion_tokens
-        self.stats.total_tokens = self.glm.total_tokens
+        scout_requests = self.scout_client.api_requests if self.scout_client else 0
+        scout_retries = self.scout_client.api_retries if self.scout_client else 0
+        scout_prompt = self.scout_client.prompt_tokens if self.scout_client else 0
+        scout_completion = self.scout_client.completion_tokens if self.scout_client else 0
+        scout_total = self.scout_client.total_tokens if self.scout_client else 0
+
+        self.stats.scout_api_requests = scout_requests
+        self.stats.scout_prompt_tokens = scout_prompt
+        self.stats.scout_completion_tokens = scout_completion
+        self.stats.api_requests = (
+            self.glm.api_requests
+            + scout_requests
+            + (self.ocr.api_requests if self.ocr else 0)
+        )
+        self.stats.api_retries = (
+            self.glm.api_retries
+            + scout_retries
+            + (self.ocr.api_retries if self.ocr else 0)
+        )
+        self.stats.prompt_tokens = self.glm.prompt_tokens + scout_prompt
+        self.stats.completion_tokens = self.glm.completion_tokens + scout_completion
+        self.stats.total_tokens = self.glm.total_tokens + scout_total
 
 
 def _guess_organization(title: str) -> str:

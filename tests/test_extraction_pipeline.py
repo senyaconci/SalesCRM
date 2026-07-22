@@ -94,6 +94,7 @@ def test_pipeline_with_mocked_glm(tmp_path: Path):
         chunk_pages=20,
         overlap_pages=2,
         ocr_mode="never",
+        scout_mode="never",
         keep_intermediate=True,
         prompts_dir=Path(__file__).resolve().parents[1] / "prompts",
     )
@@ -158,6 +159,7 @@ def test_failed_chunk_continues_and_nonzero_exit(tmp_path: Path):
         chunk_pages=3,
         overlap_pages=1,
         ocr_mode="never",
+        scout_mode="never",
         prompts_dir=Path(__file__).resolve().parents[1] / "prompts",
         max_api_retries=1,
     )

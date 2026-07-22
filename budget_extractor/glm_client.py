@@ -119,10 +119,13 @@ class GlmClient:
                 "top_p": self.config.top_p,
                 "max_tokens": max_tokens or self.config.max_output_tokens,
                 "response_format": {"type": "json_object"},
-                "thinking": {"type": "enabled"},
-                "reasoning_effort": self.config.reasoning_effort,
+                "thinking": {
+                    "type": "enabled" if self.config.thinking_enabled else "disabled"
+                },
                 "request_id": request_id,
             }
+            if self.config.thinking_enabled:
+                kwargs["reasoning_effort"] = self.config.reasoning_effort
             try:
                 response = client.chat.completions.create(**kwargs)
             except TypeError:

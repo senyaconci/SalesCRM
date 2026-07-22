@@ -403,6 +403,17 @@ class RunStatistics(BaseModel):
     pages_native_text: int = 0
     pages_ocr: int = 0
     pages_failed: int = 0
+    scout_enabled: bool = False
+    scout_model: str | None = None
+    scout_primary_windows: int = 0
+    scout_audit_windows: int = 0
+    scout_failed_windows: int = 0
+    scout_candidate_pages: int = 0
+    heavy_pages_selected: int = 0
+    pages_filtered_before_extraction: int = 0
+    scout_api_requests: int = 0
+    scout_prompt_tokens: int = 0
+    scout_completion_tokens: int = 0
 
 
 class FinalExtractionOutput(BaseModel):

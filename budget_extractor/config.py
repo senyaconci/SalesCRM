@@ -12,6 +12,7 @@ from typing import Any, Literal
 from dotenv import load_dotenv
 
 OcrMode = Literal["auto", "always", "never"]
+ScoutMode = Literal["auto", "never"]
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 
 DEFAULT_BASE_URL = "https://api.z.ai/api/paas/v4"
@@ -24,6 +25,11 @@ DEFAULT_OCR_CHUNK_PAGES = 20
 DEFAULT_MAX_RETRIES = 5
 DEFAULT_TIMEOUT_SECONDS = 600
 DEFAULT_MAX_WORKERS = 1
+DEFAULT_SCOUT_MODEL = "glm-4.7-flash"
+DEFAULT_SCOUT_CHUNK_PAGES = 10
+DEFAULT_SCOUT_OVERLAP_PAGES = 2
+DEFAULT_SCOUT_CONTEXT_PAGES = 2
+DEFAULT_SCOUT_MAX_OUTPUT_TOKENS = 4096
 
 
 def _env_int(name: str, default: int) -> int:
@@ -38,6 +44,18 @@ def _env_str(name: str, default: str) -> str:
     if raw is None or raw.strip() == "":
         return default
     return raw.strip()
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    normalized = raw.strip().lower()
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    raise ValueError(f"{name} must be true or false")
 
 
 @dataclass
@@ -56,6 +74,13 @@ class AppConfig:
     request_timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
     max_workers: int = DEFAULT_MAX_WORKERS
     ocr_mode: OcrMode = "auto"
+    scout_mode: ScoutMode = "auto"
+    scout_model: str = DEFAULT_SCOUT_MODEL
+    scout_chunk_pages: int = DEFAULT_SCOUT_CHUNK_PAGES
+    scout_overlap_pages: int = DEFAULT_SCOUT_OVERLAP_PAGES
+    scout_context_pages: int = DEFAULT_SCOUT_CONTEXT_PAGES
+    scout_max_output_tokens: int = DEFAULT_SCOUT_MAX_OUTPUT_TOKENS
+    scout_audit_negatives: bool = True
     resume: bool = False
     force: bool = False
     start_page: int | None = None
@@ -64,6 +89,7 @@ class AppConfig:
     keep_intermediate: bool = False
     temperature: float = 0.1
     top_p: float = 0.2
+    thinking_enabled: bool = True
     max_cost_usd: float | None = None
     prompts_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "prompts")
 
@@ -94,6 +120,18 @@ class AppConfig:
             raise ValueError("end_page must be >= start_page")
         if self.ocr_mode not in {"auto", "always", "never"}:
             raise ValueError("ocr_mode must be auto, always, or never")
+        if self.scout_mode not in {"auto", "never"}:
+            raise ValueError("scout_mode must be auto or never")
+        if self.scout_chunk_pages < 1:
+            raise ValueError("scout_chunk_pages must be >= 1")
+        if self.scout_overlap_pages < 0:
+            raise ValueError("scout_overlap_pages must be >= 0")
+        if self.scout_overlap_pages >= self.scout_chunk_pages:
+            raise ValueError("scout_overlap_pages must be smaller than scout_chunk_pages")
+        if self.scout_context_pages < 0:
+            raise ValueError("scout_context_pages must be >= 0")
+        if self.scout_max_output_tokens < 256:
+            raise ValueError("scout_max_output_tokens must be >= 256")
         if self.max_cost_usd is not None and self.max_cost_usd <= 0:
             raise ValueError("max_cost_usd must be > 0 when set")
 
@@ -105,9 +143,17 @@ class AppConfig:
             "overlap_pages": self.overlap_pages,
             "ocr_mode": self.ocr_mode,
             "ocr_chunk_pages": self.ocr_chunk_pages,
+            "scout_mode": self.scout_mode,
+            "scout_model": self.scout_model,
+            "scout_chunk_pages": self.scout_chunk_pages,
+            "scout_overlap_pages": self.scout_overlap_pages,
+            "scout_context_pages": self.scout_context_pages,
+            "scout_max_output_tokens": self.scout_max_output_tokens,
+            "scout_audit_negatives": self.scout_audit_negatives,
             "start_page": self.start_page,
             "end_page": self.end_page,
             "reasoning_effort": self.reasoning_effort,
+            "thinking_enabled": self.thinking_enabled,
         }
 
     def configuration_hash(self) -> str:
@@ -134,6 +180,12 @@ def load_config(
     chunk_pages: int | None = None,
     overlap_pages: int | None = None,
     ocr_mode: OcrMode | None = None,
+    scout_mode: ScoutMode | None = None,
+    scout_model: str | None = None,
+    scout_chunk_pages: int | None = None,
+    scout_overlap_pages: int | None = None,
+    scout_context_pages: int | None = None,
+    scout_audit_negatives: bool | None = None,
     resume: bool = False,
     force: bool = False,
     start_page: int | None = None,
@@ -167,6 +219,31 @@ def load_config(
         request_timeout_seconds=_env_int("REQUEST_TIMEOUT_SECONDS", DEFAULT_TIMEOUT_SECONDS),
         max_workers=max_workers if max_workers is not None else _env_int("MAX_WORKERS", DEFAULT_MAX_WORKERS),
         ocr_mode=ocr_mode or "auto",
+        scout_mode=scout_mode or _env_str("SCOUT_MODE", "auto"),  # type: ignore[arg-type]
+        scout_model=scout_model or _env_str("SCOUT_MODEL", DEFAULT_SCOUT_MODEL),
+        scout_chunk_pages=(
+            scout_chunk_pages
+            if scout_chunk_pages is not None
+            else _env_int("SCOUT_CHUNK_PAGES", DEFAULT_SCOUT_CHUNK_PAGES)
+        ),
+        scout_overlap_pages=(
+            scout_overlap_pages
+            if scout_overlap_pages is not None
+            else _env_int("SCOUT_OVERLAP_PAGES", DEFAULT_SCOUT_OVERLAP_PAGES)
+        ),
+        scout_context_pages=(
+            scout_context_pages
+            if scout_context_pages is not None
+            else _env_int("SCOUT_CONTEXT_PAGES", DEFAULT_SCOUT_CONTEXT_PAGES)
+        ),
+        scout_max_output_tokens=_env_int(
+            "SCOUT_MAX_OUTPUT_TOKENS", DEFAULT_SCOUT_MAX_OUTPUT_TOKENS
+        ),
+        scout_audit_negatives=(
+            scout_audit_negatives
+            if scout_audit_negatives is not None
+            else _env_bool("SCOUT_AUDIT_NEGATIVES", True)
+        ),
         resume=resume,
         force=force,
         start_page=start_page,

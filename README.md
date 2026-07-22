@@ -19,7 +19,9 @@ Municipal and agency budget documents often scatter capital-project details acro
 PDF acquire/inspect
   -> native text extraction (PyMuPDF) with <<<PDF_PAGE_N>>> markers
   -> OCR fallback for low-text pages (Z.AI glm-ocr /layout_parsing)
-  -> overlapping text chunks (default 20 pages, 2-page overlap)
+  -> cheap two-pass page scout (default glm-4.7-flash)
+  -> expand candidate pages by context and discard irrelevant pages
+  -> overlapping detailed-extraction chunks (default 20 pages, 2-page overlap)
   -> Pass A: GLM chunk extraction + validation + repair + checkpoints
   -> Pass B: deterministic + optional GLM duplicate consolidation
   -> JSON + Excel exporters
@@ -29,6 +31,7 @@ Key packages:
 
 * `budget_extractor/pdf_processor.py` – download, inspect, extract, chunk
 * `budget_extractor/ocr_client.py` – OCR with cache and size/page limits
+* `budget_extractor/scouting.py` – high-recall cheap-model routing and audit
 * `budget_extractor/glm_client.py` – official `zai-sdk` chat completions
 * `budget_extractor/extraction.py` – two-pass orchestrator
 * `budget_extractor/deduplication.py` – conservative merge logic
@@ -90,6 +93,13 @@ ZAI_BASE_URL=https://api.z.ai/api/paas/v4
 GLM_MODEL=glm-5.2
 GLM_REASONING_EFFORT=high
 GLM_MAX_OUTPUT_TOKENS=32768
+SCOUT_MODE=auto
+SCOUT_MODEL=glm-4.7-flash
+SCOUT_CHUNK_PAGES=10
+SCOUT_OVERLAP_PAGES=2
+SCOUT_CONTEXT_PAGES=2
+SCOUT_MAX_OUTPUT_TOKENS=4096
+SCOUT_AUDIT_NEGATIVES=true
 PDF_CHUNK_PAGES=20
 PDF_OVERLAP_PAGES=2
 OCR_CHUNK_PAGES=20
@@ -140,6 +150,11 @@ python -m budget_extractor \
 | Flag | Meaning |
 |---|---|
 | `--ocr auto\|always\|never` | OCR policy for scanned/low-text pages |
+| `--scout auto\|never` | Enable or bypass cheap-model page filtering |
+| `--scout-model` | Routing model; default `glm-4.7-flash` |
+| `--scout-chunk-pages` | Pages per routing window; default 10 |
+| `--scout-context-pages` | Neighboring pages retained around hits; default 2 |
+| `--no-scout-audit` | Disable the second pass over rejected windows |
 | `--resume` | Continue from checkpoints |
 | `--force` | Reprocess completed chunks |
 | `--start-page` / `--end-page` | Limit page range |
@@ -155,6 +170,28 @@ python -m budget_extractor \
 
 OCR uses `POST {ZAI_BASE_URL}/layout_parsing` with model `glm-ocr`, default max 20 pages/chunk, subdivision for large files, and checkpoint caching.
 
+## Cheap-model scouting
+
+`--scout auto` is enabled by default. It reduces detailed GLM-5.2 work using:
+
+1. A high-recall cheap-model pass over 10-page windows
+2. An independent second pass over windows rejected by the first pass
+3. A deterministic keyword/structure safety net
+4. Two context pages on both sides of every candidate page
+
+Scout failures are **fail-open**: every page in a failed window is retained for
+detailed extraction. This protects recall at the expense of cost. The validated
+scout result and each raw response are checkpointed under `checkpoints/`.
+
+Disable filtering when you want the original all-page behavior:
+
+```bash
+python -m budget_extractor \
+  --input budget.pdf \
+  --output-dir outputs \
+  --scout never
+```
+
 ## Resume instructions
 
 Checkpoints live under:
@@ -163,6 +200,10 @@ Checkpoints live under:
 outputs/
   run_manifest.json
   checkpoints/
+    scout_result.json
+    scout_primary_0001_raw_response.json
+    scout_primary_0001_validated.json
+    scout_primary_0001_status.json
     chunk_0001_input.txt
     chunk_0001_raw_response.json
     chunk_0001_validated.json
@@ -213,10 +254,13 @@ Tests mock GLM/OCR calls and generate a synthetic PDF fixture at runtime. No API
 ## API cost and token-use considerations
 
 * Do not send an entire 400–600 page PDF in one prompt.
-* Default chunking (20 pages, 2 overlap) balances recall and cost.
+* The default free `glm-4.7-flash` scout filters irrelevant pages before GLM-5.2.
+* Scout auditing and context expansion intentionally favor recall over maximum savings.
+* Detailed chunking (20 pages, 2 overlap) balances extraction context and cost.
 * `reasoning_effort=high` and large `max_output_tokens` improve extraction quality but increase spend.
 * Resume/`--start-page`/`--end-page` help control cost while iterating.
 * Keep `--max-workers` at 1–2 to reduce rate-limit retries.
+* Use `--max-cost-usd` for a hard estimated spend guard.
 
 ## Troubleshooting
 
@@ -241,6 +285,7 @@ Exit codes:
 
 * OCR page mapping is best-effort when the OCR service returns a single undifferentiated markdown blob for a multi-page chunk.
 * GLM may miss projects buried in unusual table layouts; overlapping chunks and repair reduce but do not eliminate this risk.
+* The scout is a probabilistic filter. Two-pass auditing, deterministic signals, context expansion, and fail-open errors reduce but cannot eliminate false-negative risk.
 * Duplicate consolidation is intentionally conservative and may leave uncertain pairs for human review.
 * Summary budget totals use `total_project_budget` only and do not sum annual appropriations into that master total.
 
@@ -260,6 +305,8 @@ python -m budget_extractor \
   --model "glm-5.2" \
   --chunk-pages 20 \
   --overlap-pages 2 \
+  --scout auto \
+  --scout-model "glm-4.7-flash" \
   --ocr auto \
   --resume \
   --keep-intermediate \
