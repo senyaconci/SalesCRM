@@ -32,9 +32,45 @@ _STATE_RE = re.compile(
 )
 _PHONE_RE = re.compile(r"\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}")
 _ADDR_RE = re.compile(
-    r"\d{1,5}\s+[A-Za-z0-9.\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|"
-    r"Lane|Ln|Way|Court|Ct|Parkway|Pkwy)\b[^.]{0,80}",
+    r"\b(\d{1,5}\s+[A-Za-z0-9.'\-\s]{2,50}(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|"
+    r"Broadway|Drive|Dr|Lane|Ln|Way|Court|Ct|Parkway|Pkwy|Circle|Cir|Place|Pl)\.?"
+    r"(?:\s*,?\s*[A-Za-z .]+){0,4}(?:\s+\d{5}(?:-\d{4})?)?)\b",
     re.I,
+)
+_PO_BOX_RE = re.compile(
+    r"\bP\.?\s*O\.?\s*Box\s+\d+[^.]{0,60}\d{5}(?:-\d{4})?\b",
+    re.I,
+)
+_COUNTY_RE = re.compile(r"\b([A-Z][a-z]+(?:\s[A-Z][a-z]+)?\s+County)\b")
+_BAD_COUNTY_PREFIXES = {
+    "pay",
+    "online",
+    "fees",
+    "county",
+    "the",
+    "this",
+    "our",
+    "city",
+    "work",
+    "session",
+    "meeting",
+    "special",
+}
+_GOVERNANCE_RE = re.compile(
+    r"\b(Council[- ]Manager|Mayor[- ]Council|Commission|Board of Supervisors|"
+    r"Board of Trustees|Board of Regents|Authority Board)\b",
+    re.I,
+)
+_SECONDARY_PATHS = (
+    "/finance",
+    "/city-council",
+    "/boards/city-council",
+    "/city-managers-office",
+    "/city-managers-office/contact-center",
+    "/budget",
+    "/contact",
+    "/contact-us",
+    "/about",
 )
 
 
@@ -59,9 +95,15 @@ def build_canonical_identity(
     )
 
     canonical_name = org_name or _extract_name(page) or page.title or domain
-    state = _find_state(page.text)
-    phone = _find_phone(page.text)
-    address = _find_address(page.text)
+    pages = [page]
+    pages.extend(_fetch_secondary_pages(html_fetcher, url))
+    combined_text = "\n".join(p.text for p in pages)
+
+    state = _find_state(combined_text)
+    phone = _find_phone(combined_text)
+    address = _find_address(combined_text)
+    county = _find_county(combined_text)
+    governance = _find_governance(combined_text)
     additional = discover_additional_domains(page.links, url)
 
     identity = OrganizationIdentity(
@@ -69,18 +111,23 @@ def build_canonical_identity(
         common_names=_common_names(canonical_name, page),
         organization_type=detected_type,
         state=state,
+        county=county,
         main_address=address,
         main_phone=phone,
         official_domain=domain,
         additional_domains=additional,
         official_url=url,
+        governance_model=governance,
+        service_area=f"{canonical_name}" if detected_type == OrganizationType.CITY and state else None,
         field_confidence={
             "canonical_name": 0.9 if org_name else 0.75,
             "organization_type": type_conf,
             "official_domain": 0.99,
             "state": 0.7 if state else 0.0,
+            "county": 0.75 if county else 0.0,
             "main_phone": 0.8 if phone else 0.0,
-            "main_address": 0.7 if address else 0.0,
+            "main_address": 0.75 if address else 0.0,
+            "governance_model": 0.8 if governance else 0.0,
         },
     )
 
@@ -130,7 +177,12 @@ def build_canonical_identity(
 
     if router is not None and router.provider.name != "mock":
         try:
-            identity = _enrich_with_llm(identity, page, router)
+            # Prefer finance/council pages for LLM identity fields when available.
+            enrich_page = next(
+                (p for p in pages if any(k in (p.url or "") for k in ("finance", "city-council", "budget"))),
+                page,
+            )
+            identity = _enrich_with_llm(identity, enrich_page, router)
         except Exception:
             # Deterministic identity already captured; LLM enrichment is optional.
             identity.ambiguity_notes.append(
@@ -179,9 +231,103 @@ def _find_phone(text: str) -> str | None:
     return match.group(0) if match else None
 
 
+def _find_county(text: str) -> str | None:
+    for match in _COUNTY_RE.finditer(text or ""):
+        candidate = clean_whitespace(match.group(1))
+        first = candidate.split()[0].lower()
+        if first in _BAD_COUNTY_PREFIXES:
+            continue
+        if "pay" in candidate.lower() or "online" in candidate.lower():
+            continue
+        return candidate
+    return None
+
+
+def _find_governance(text: str) -> str | None:
+    match = _GOVERNANCE_RE.search(text or "")
+    return clean_whitespace(match.group(1)) if match else None
+
+
 def _find_address(text: str) -> str | None:
-    match = _ADDR_RE.search(text or "")
-    return clean_whitespace(match.group(0)) if match else None
+    text = text or ""
+    # Prefer compact civic street addresses; attach nearby PO Box when present.
+    for match in _ADDR_RE.finditer(text):
+        candidate = clean_whitespace(match.group(1 if match.lastindex else 0))
+        if not _is_plausible_address(candidate):
+            continue
+        # Trim trailing non-address prose accidentally captured after street token.
+        candidate = re.split(
+            r"\b(?:Budget|Town|Hall|Contact|Phone|Fax|Email|Hours|Monday)\b",
+            candidate,
+            maxsplit=1,
+        )[0].strip(" ,;")
+        if candidate.lower().endswith("p.o. box") or candidate.lower().endswith("po box"):
+            window = text[match.end() : match.end() + 80]
+            po = re.search(r"P\.?\s*O\.?\s*Box\s+\d+[^.]{0,40}\d{5}(?:-\d{4})?", window, re.I)
+            if po:
+                candidate = clean_whitespace(candidate + " " + po.group(0))
+            else:
+                candidate = re.sub(r"\s*P\.?\s*O\.?\s*Box\s*$", "", candidate, flags=re.I).strip(" ,;")
+        if _is_plausible_address(candidate):
+            return candidate[:160]
+    po = _PO_BOX_RE.search(text)
+    if po:
+        return clean_whitespace(po.group(0))[:160]
+    return None
+
+
+def _fetch_secondary_pages(html_fetcher: HtmlFetcher, base_url: str) -> list[ParsedPage]:
+    pages: list[ParsedPage] = []
+    for path in _SECONDARY_PATHS:
+        try:
+            from urllib.parse import urljoin
+
+            secondary = normalize_url(urljoin(base_url if base_url.endswith("/") else base_url + "/", path.lstrip("/")))
+            _result, page = html_fetcher.fetch_and_parse(secondary)
+            if page and page.text:
+                pages.append(page)
+        except Exception:
+            continue
+        if len(pages) >= 5:
+            break
+    return pages
+
+
+def _is_plausible_address(candidate: str | None) -> bool:
+    if not candidate:
+        return False
+    candidate = clean_whitespace(candidate)
+    if len(candidate) < 12 or len(candidate) > 160:
+        return False
+    lower = candidate.lower()
+    if any(
+        bad in lower
+        for bad in (
+            "newsletter",
+            "featured",
+            "project city",
+            "click",
+            "menu",
+            "july",
+            "june",
+            "recycling",
+            "solid waste",
+            "utility hosts",
+            "drop-off",
+            "drop off",
+        )
+    ):
+        return False
+    if not re.search(r"\d", candidate):
+        return False
+    # Require a street-like token, not free-form prose.
+    if not re.search(
+        r"\b(?:street|st|avenue|ave|road|rd|boulevard|blvd|broadway|drive|dr|"
+        r"lane|ln|way|court|ct|parkway|pkwy|circle|cir|place|pl|p\.?\s*o\.?\s*box)\b",
+        lower,
+    ):
+        return False
+    return True
 
 
 def _enrich_with_llm(
@@ -210,17 +356,29 @@ def _enrich_with_llm(
         "fiscal_year",
     ):
         value = data.get(field_name)
-        if value and not getattr(identity, field_name):
-            setattr(identity, field_name, value)
-            identity.field_confidence[field_name] = float(
-                (data.get("field_confidence") or {}).get(field_name, 0.7)
-            )
-    if data.get("common_names"):
-        identity.common_names = list(
-            dict.fromkeys(identity.common_names + list(data["common_names"]))
+        if not value or getattr(identity, field_name):
+            continue
+        if field_name == "main_address" and not _is_plausible_address(str(value)):
+            continue
+        if field_name == "county":
+            county = clean_whitespace(str(value))
+            if county.split()[0].lower() in _BAD_COUNTY_PREFIXES or not county.lower().endswith("county"):
+                continue
+            value = county
+        if field_name == "main_phone" and not _PHONE_RE.search(str(value)):
+            continue
+        setattr(identity, field_name, value)
+        identity.field_confidence[field_name] = float(
+            (data.get("field_confidence") or {}).get(field_name, 0.7)
         )
-    if data.get("ambiguity_notes"):
-        identity.ambiguity_notes.extend(data["ambiguity_notes"])
+    common = data.get("common_names")
+    if isinstance(common, list):
+        identity.common_names = list(dict.fromkeys(identity.common_names + [str(x) for x in common]))
+    notes = data.get("ambiguity_notes")
+    if isinstance(notes, str) and notes.strip():
+        identity.ambiguity_notes.append(notes.strip())
+    elif isinstance(notes, list):
+        identity.ambiguity_notes.extend(str(n).strip() for n in notes if str(n).strip())
     if data.get("organization_type"):
         try:
             identity.organization_type = OrganizationType(data["organization_type"])

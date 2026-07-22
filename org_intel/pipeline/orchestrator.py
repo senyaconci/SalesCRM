@@ -363,31 +363,37 @@ class PipelineOrchestrator:
                 )
                 self.state.document_inventory.documents.insert(0, doc)
                 existing.add(url)
-        # Also add canonical Columbia-style CIP search if /cip source exists.
+        # Also add Columbia-style CIP search if /cip exists AND the endpoint responds.
         for source in self.state.source_registry.sources:
             if source.url and source.url.rstrip("/").endswith("/cip"):
-                candidate = source.url.replace("/cip", "/webapps/cipweb/project_search.php")
-                # Prefer absolute known pattern on same host
                 from org_intel.utils.urls import domain_of
 
                 host = domain_of(source.url)
-                if host:
-                    candidate = f"https://{host}/webapps/cipweb/project_search.php"
-                if candidate.rstrip("/") not in existing:
-                    doc = DocumentRecord(
-                        title="Capital Improvement Projects (CIP) Search",
-                        document_type=DocumentType.LIVE_REGISTRY,
-                        url=candidate,
-                        source_id=source.source_id,
-                        publishing_entity=source.publishing_entity,
-                        file_type="html",
-                        likely_project_relevance=0.99,
-                        likely_financial_relevance=0.75,
-                        content_roles=[ContentRole.PROJECT_INVENTORY],
-                        confidence=0.9,
-                    )
-                    self.state.document_inventory.documents.insert(0, doc)
-                    existing.add(candidate.rstrip("/"))
+                if not host:
+                    continue
+                candidate = f"https://{host}/webapps/cipweb/project_search.php"
+                if candidate.rstrip("/") in existing:
+                    continue
+                try:
+                    probe = self.http.fetch(candidate)
+                    if probe.status_code >= 400:
+                        continue
+                except Exception:
+                    continue
+                doc = DocumentRecord(
+                    title="Capital Improvement Projects (CIP) Search",
+                    document_type=DocumentType.LIVE_REGISTRY,
+                    url=candidate,
+                    source_id=source.source_id,
+                    publishing_entity=source.publishing_entity,
+                    file_type="html",
+                    likely_project_relevance=0.99,
+                    likely_financial_relevance=0.75,
+                    content_roles=[ContentRole.PROJECT_INVENTORY],
+                    confidence=0.9,
+                )
+                self.state.document_inventory.documents.insert(0, doc)
+                existing.add(candidate.rstrip("/"))
 
     def _enrich_cip_detail_pages(self, projects: list[ProjectRecord]) -> list[ProjectRecord]:
         from org_intel.projects.cip_detail import enrich_from_cip_detail_html
@@ -597,7 +603,7 @@ class PipelineOrchestrator:
 
         artifacts = self._artifacts()
         export_json_bundle(self.output_dir, artifacts)
-        md_path = export_markdown_report(self.output_dir, artifacts)
+        md_path = export_markdown_report(self.output_dir, artifacts, router=self.router)
         xlsx_path = export_excel_workbook(self.output_dir, artifacts)
         try:
             pdf_path = export_pdf_report(self.output_dir, md_path)

@@ -164,6 +164,8 @@ def _department_candidates(
         url = link.get("url") or ""
         if not text or len(text) > 80:
             continue
+        if not _looks_like_org_entity(text):
+            continue
         lower = text.lower()
         if any(term in lower or term.replace(" ", "-") in url.lower() for term in terms):
             out.append(
@@ -175,9 +177,11 @@ def _department_candidates(
                     "function": None,
                 }
             )
-    # Also scan headings
+    # Also scan headings (same entity filter as links).
     for h in page.headings:
         text = clean_whitespace(h.get("text") or "")
+        if not _looks_like_org_entity(text):
+            continue
         lower = text.lower()
         if any(term in lower for term in terms):
             out.append({"name": text, "url": base_url, "confidence": 0.55, "quote": text})
@@ -186,6 +190,8 @@ def _department_candidates(
         abs_url = absolutize(base_url, hint)
         if abs_url:
             label = hint.strip("/").replace("-", " ").title()
+            if not _looks_like_org_entity(label):
+                continue
             out.append(
                 {
                     "name": label,
@@ -242,3 +248,170 @@ def _maybe_separate_procurement(name: str) -> bool | None:
     if any(k in lower for k in ("procurement", "purchasing", "authority")):
         return True
     return None
+
+
+def _looks_like_org_entity(name: str) -> bool:
+    lower = name.lower().strip()
+    if not lower or len(lower) < 3 or len(lower) > 60:
+        return False
+    words = lower.split()
+    if len(words) > 6:
+        return False
+    banned = (
+        "pay ",
+        "apply",
+        "register",
+        "report ",
+        "opens",
+        "faq",
+        "news",
+        "browse",
+        "arrest",
+        "shooting",
+        "holiday",
+        "featured",
+        "newsletter",
+        "click",
+        "rebates",
+        "free ",
+        "see other",
+        "let's talk",
+        "responds to",
+        "invited to",
+        "trash",
+        "recycling",
+        "pickup",
+        "roll-off",
+        "hazardous waste",
+        "sports leagues",
+        "facility rental",
+        "activity registration",
+        "snow and ice",
+        "outage",
+        "boil",
+        "yard waste",
+        "large-item",
+        "large item",
+        "parking ticket",
+        "business license",
+        "hotel",
+        "citizen self-service",
+        "history of",
+        "resident",
+        "press release",
+        "tribute",
+        "request for",
+        "ride-along",
+        "ride along",
+        "vehicle stops",
+        "extra duty",
+        "community event",
+        "firefighter",
+        "station tours",
+        "police academy",
+        "university of",
+        "senior management",
+        "@",
+        ".gov",
+        "pdf",
+        "honor guard",
+        "juvenile",
+        "escape",
+        "safety information",
+        "meet the",
+        "events",
+        "benefits of",
+        "dog parks",
+        "wards map",
+        "how to",
+        "upcoming",
+        "meetings",
+        "follow-up",
+        "follow up",
+        "audit",
+        "ordinances",
+        "posts",
+        "agenda",
+        "friends of",
+        "welcome to",
+        "water leaks",
+        "electric meters",
+        "sewer obstructions",
+        "about the",
+        "about water",
+        "about engineering",
+        "about finance",
+        "about public",
+        "about city",
+        "about columbia",
+        "read more",
+        "structure of",
+        "approves budget",
+        "open finance",
+        "inspection",
+        "organization",
+        "performance",
+        "police employment",
+        "permit guidelines",
+        "permits and planning",
+        "dispatch",
+        "guidelines",
+        "information",
+        "browse",
+        "popular",
+    )
+    if any(b in lower for b in banned):
+        return False
+    if lower.startswith("about ") or lower.startswith("welcome "):
+        return False
+
+    unit_suffixes = (
+        "department",
+        "division",
+        "office",
+        "council",
+        "board",
+        "commission",
+        "authority",
+        "utility",
+        "utilities",
+    )
+    if any(lower.endswith(s) or f" {s}" in lower for s in unit_suffixes):
+        return True
+
+    exact_or_core = {
+        "finance",
+        "public works",
+        "procurement",
+        "purchasing",
+        "engineering",
+        "planning",
+        "police",
+        "fire",
+        "parks and recreation",
+        "parks & recreation",
+        "airport",
+        "transit",
+        "water",
+        "sewer",
+        "electric",
+        "stormwater",
+        "storm water",
+        "budget",
+        "cip",
+        "bids",
+        "community development",
+        "solid waste",
+        "railroad",
+        "colt railroad",
+        "parking utility",
+        "city council",
+        "city manager",
+        "city manager's office",
+        "city managers office",
+        "accounting & finance",
+        "contracting & purchasing",
+        "columbia police",
+        "fire department",
+    }
+    return lower in exact_or_core or any(lower.startswith(x) and len(words) <= 4 for x in exact_or_core)

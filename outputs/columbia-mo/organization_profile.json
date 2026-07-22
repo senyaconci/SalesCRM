@@ -1,0 +1,103 @@
+{
+  "organization_id": "ORG-60207435b0",
+  "canonical_name": "City of Columbia, Missouri",
+  "common_names": [
+    "City of Columbia, Missouri",
+    "City of Columbia",
+    "City of Columbia, MO",
+    "Columbia, MO",
+    "CoMo"
+  ],
+  "aliases": [],
+  "organization_type": "city",
+  "parent_organization": null,
+  "subsidiaries": [],
+  "related_entities": [],
+  "state": "Missouri",
+  "county": "Boone County",
+  "main_address": "701 E. Broadway",
+  "main_phone": "573.874.2489",
+  "official_domain": "como.gov",
+  "additional_domains": [],
+  "official_url": "https://como.gov/",
+  "service_area": "City of Columbia, Missouri",
+  "population_or_customer_base": null,
+  "fiscal_year": null,
+  "governance_model": "Council-Manager",
+  "active_status": "active",
+  "government_identifiers": {},
+  "ambiguity_notes": [
+    "County not explicitly mentioned in the provided text; fiscal year start/end not explicitly stated"
+  ],
+  "field_confidence": {
+    "canonical_name": 0.9,
+    "organization_type": 0.95,
+    "official_domain": 0.99,
+    "state": 0.7,
+    "county": 0.75,
+    "main_phone": 0.8,
+    "main_address": 0.75,
+    "governance_model": 0.8
+  },
+  "field_evidence": [
+    {
+      "field": "canonical_name",
+      "value": "City of Columbia, Missouri",
+      "source_url": "https://como.gov/",
+      "source_title": "City of Columbia Missouri - Official Government Website",
+      "quote": "City of Columbia Missouri - Official Government Website",
+      "retrieved_at": "2026-07-22T04:21:29.832472Z",
+      "confidence": 0.9,
+      "provenance": "stated",
+      "page": null,
+      "section": null
+    },
+    {
+      "field": "organization_type",
+      "value": "city",
+      "source_url": "https://como.gov/",
+      "source_title": "City of Columbia Missouri - Official Government Website",
+      "quote": "City of Columbia Missouri - Official Government Website skip to main content CoMobile Apps Disable Tips Translate Contact Us Accessibility Accessibility of our Website Show the Accessibility Tools Co…",
+      "retrieved_at": "2026-07-22T04:21:29.832472Z",
+      "confidence": 0.95,
+      "provenance": "inferred",
+      "page": null,
+      "section": null
+    },
+    {
+      "field": "official_domain",
+      "value": "como.gov",
+      "source_url": "https://como.gov/",
+      "source_title": "City of Columbia Missouri - Official Government Website",
+      "quote": "https://como.gov/",
+      "retrieved_at": "2026-07-22T04:21:29.832472Z",
+      "confidence": 0.99,
+      "provenance": "stated",
+      "page": null,
+      "section": null
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "EV-975080a1bd",
+      "source_id": null,
+      "document_id": null,
+      "url": "https://como.gov/",
+      "title": "City of Columbia Missouri - Official Government Website",
+      "page": null,
+      "section": null,
+      "quote": "City of Columbia Missouri - Official Government Website skip to main content CoMobile Apps Disable Tips Translate Contact Us Accessibility Accessibility of our Website Show the Accessibility Tools CoMobile Apps Disable Tips Translate Contact Us Accessibility Accessibility of our Website Show the Accessibility Tools Resident Utilities & Trash Bulky Item Pickup Roll-off Containers Household Hazardo…",
+      "retrieved_at": "2026-07-22T04:21:29.833095Z",
+      "evidence_type": "excerpt",
+      "supports_fields": [
+        "canonical_name",
+        "organization_type",
+        "official_domain"
+      ],
+      "confidence": 0.85,
+      "provenance": "stated"
+    }
+  ],
+  "created_at": "2026-07-22T04:21:29.832465Z",
+  "updated_at": "2026-07-22T04:21:29.832467Z"
+}
