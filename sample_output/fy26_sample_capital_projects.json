@@ -1,0 +1,455 @@
+{
+  "document_metadata": {
+    "document_title": "fy26 final adopted budget book",
+    "organization_name": "",
+    "fiscal_year_or_period": "FY2026",
+    "source_file": "fy26-final-adopted-budget-book.pdf",
+    "source_url": null,
+    "file_sha256": "0e60f67fe076c1ff8464ff6ae3bf10d1e794818629f18de342cbfd96a0973f7a",
+    "total_pages": 462,
+    "processed_pages": 13,
+    "ocr_pages": [],
+    "failed_pages": [],
+    "processing_started_at": "2026-07-22T00:21:10.537044+00:00",
+    "processing_completed_at": "2026-07-22T00:22:19.525832+00:00",
+    "model": "glm-5.2",
+    "application_version": "1.0.0",
+    "aggregation_method": "Totals use each project's total_project_budget when present. Annual appropriations and funding-source rows are summarized separately and are NOT added into known_total_project_value, to avoid double-counting multi-year schedules."
+  },
+  "summary": {
+    "raw_project_records": 14,
+    "final_project_count": 13,
+    "duplicate_records_merged": 1,
+    "projects_with_known_total_budget": 13,
+    "projects_with_unknown_budget": 0,
+    "known_total_project_value": 21438458.0,
+    "strong_pre_rfp_count": 4,
+    "possible_pre_rfp_count": 7,
+    "active_procurement_count": 0,
+    "unknown_phase_count": 0,
+    "budget_conflict_count": 0,
+    "low_confidence_count": 0,
+    "sums_by_department": {
+      "Parks & Recreation": 1540000.0,
+      "Parks & Recreation - Capital Improvement Project": 19898458.0
+    },
+    "sums_by_category": {
+      "Unknown category": 21438458.0
+    },
+    "sums_by_phase": {
+      "construction": 1485000.0,
+      "funding_approved": 18473458.0,
+      "funding_requested": 1480000.0
+    },
+    "sums_by_fiscal_year": {}
+  },
+  "projects": [
+    {
+      "record_id": "proj_20868d673de29e2f",
+      "project_id": "00242",
+      "project_name": "Park Roads & Parking",
+      "alternative_project_names": [],
+      "owning_organization": null,
+      "department_or_agency": "Parks & Recreation - Capital Improvement Project",
+      "project_location": "Citywide",
+      "address_or_site": null,
+      "city": null,
+      "county": null,
+      "state": null,
+      "project_category": null,
+      "project_subcategory": null,
+      "infrastructure_domains": [],
+      "project_description": "Annual improvements to roads and parking areas to provide an attractive and safe surface for park users.",
+      "problem_or_need": null,
+      "proposed_scope": null,
+      "major_components": [],
+      "deliverables": [],
+      "current_phase": "funding_approved",
+      "phase_evidence": null,
+      "phase_is_inferred": false,
+      "pre_rfp_status": "possible_pre_rfp",
+      "procurement_status": null,
+      "design_status": null,
+      "construction_status": null,
+      "approval_status": null,
+      "funding_status": null,
+      "priority_level": null,
+      "total_project_budget": 4330677.0,
+      "total_project_budget_raw": "Actual Budget: $4,330,677",
+      "current_year_budget": null,
+      "current_year_budget_raw": null,
+      "prior_year_spending": 166085.0,
+      "future_year_funding": 1200000.0,
+      "remaining_budget": 143310.0,
+      "requested_funding": null,
+      "approved_funding": 3130677.0,
+      "unfunded_amount": 1200000.0,
+      "bond_funding": null,
+      "grant_funding": null,
+      "local_funding": null,
+      "state_funding": null,
+      "federal_funding": null,
+      "other_funding": null,
+      "annual_funding_schedule": [],
+      "funding_sources": [
+        {
+          "source_name": "Parks Sales Tax",
+          "source_type": null,
+          "amount": null,
+          "amount_raw": null,
+          "fiscal_year": null,
+          "source_pages": [
+            329
+          ]
+        },
+        {
+          "source_name": "Parks Sales Tax",
+          "source_type": null,
+          "amount": 4330677.0,
+          "amount_raw": "Actual Budget: $4,330,677",
+          "fiscal_year": null,
+          "source_pages": [
+            329
+          ]
+        }
+      ],
+      "fund_or_account": null,
+      "budget_conflicts": [],
+      "estimated_start_date": null,
+      "estimated_design_date": null,
+      "estimated_procurement_date": null,
+      "estimated_bid_date": null,
+      "estimated_construction_start": null,
+      "estimated_completion_date": "Ongoing",
+      "timeline_notes": null,
+      "approval_body": null,
+      "approval_date": null,
+      "responsible_contacts": [],
+      "consultants_or_engineers": [],
+      "contractors_or_vendors": [],
+      "dependencies": [],
+      "related_projects": [],
+      "risks_or_constraints": [],
+      "source_pages": [
+        329
+      ],
+      "source_sections": [],
+      "source_tables_or_appendices": [],
+      "evidence": [
+        {
+          "page": 329,
+          "quote": "Project Description: Annual improvements to roads and parking areas to provide an attractive and safe surface for park users.",
+          "evidence_type": "scope"
+        },
+        {
+          "page": 329,
+          "quote": "Total Appropriated: $3,130,677; Needs Appropriated: $1,200,000; Actual Budget: $4,330,677",
+          "evidence_type": "budget"
+        },
+        {
+          "page": 329,
+          "quote": "Project Funding Sources: Parks Sales Tax",
+          "evidence_type": "budget"
+        },
+        {
+          "page": 329,
+          "quote": "Annual improvements to roads and parking areas to provide an attractive and safe surface for park users.",
+          "evidence_type": "scope"
+        },
+        {
+          "page": 329,
+          "quote": "Total Appropriated: $3,130,677 Needs Appropriated: $1,200,000 Actual Budget: $4,330,677",
+          "evidence_type": "budget"
+        }
+      ],
+      "first_seen_chunk": "chunk_0001",
+      "seen_in_chunks": [
+        "chunk_0001",
+        "chunk_0002"
+      ],
+      "incomplete_at_chunk_boundary": false,
+      "confidence_score": 0.95,
+      "extraction_notes": "Ward: Citywide",
+      "quality_flags": [
+        "possible_duplicate"
+      ],
+      "merged_from_record_ids": [
+        "proj_20868d673de29e2f"
+      ]
+    },
+    {
+      "record_id": "proj_a403478d7974446c",
+      "project_id": "00662",
+      "project_name": "Annual Land Acquisition & Preservation",
+      "alternative_project_names": [],
+      "owning_organization": null,
+      "department_or_agency": "Parks & Recreation - Capital Improvement Project",
+      "project_location": "Citywide",
+      "address_or_site": null,
+      "city": null,
+      "county": null,
+      "state": null,
+      "project_category": null,
+      "project_subcategory": null,
+      "infrastructure_domains": [],
+      "project_description": "Land acquisition for all park types (neighborhood, community, regional, special purpose), greenways, and natural areas.",
+      "problem_or_need": null,
+      "proposed_scope": null,
+      "major_components": [],
+      "deliverables": [],
+      "current_phase": "funding_approved",
+      "phase_evidence": null,
+      "phase_is_inferred": false,
+      "pre_rfp_status": "possible_pre_rfp",
+      "procurement_status": null,
+      "design_status": null,
+      "construction_status": null,
+      "approval_status": null,
+      "funding_status": null,
+      "priority_level": null,
+      "total_project_budget": 4625000.0,
+      "total_project_budget_raw": "Actual Budget: $4,625,000",
+      "current_year_budget": null,
+      "current_year_budget_raw": null,
+      "prior_year_spending": 85372.0,
+      "future_year_funding": 2125000.0,
+      "remaining_budget": 557850.0,
+      "requested_funding": null,
+      "approved_funding": 2500000.0,
+      "unfunded_amount": null,
+      "bond_funding": null,
+      "grant_funding": null,
+      "local_funding": null,
+      "state_funding": null,
+      "federal_funding": null,
+      "other_funding": null,
+      "annual_funding_schedule": [],
+      "funding_sources": [
+        {
+          "source_name": "Parks Sales Tax",
+          "source_type": null,
+          "amount": null,
+          "amount_raw": null,
+          "fiscal_year": null,
+          "source_pages": [
+            320
+          ]
+        },
+        {
+          "source_name": "Donations",
+          "source_type": null,
+          "amount": null,
+          "amount_raw": null,
+          "fiscal_year": null,
+          "source_pages": [
+            320
+          ]
+        }
+      ],
+      "fund_or_account": null,
+      "budget_conflicts": [],
+      "estimated_start_date": null,
+      "estimated_design_date": null,
+      "estimated_procurement_date": null,
+      "estimated_bid_date": null,
+      "estimated_construction_start": null,
+      "estimated_completion_date": "Ongoing",
+      "timeline_notes": null,
+      "approval_body": null,
+      "approval_date": null,
+      "responsible_contacts": [],
+      "consultants_or_engineers": [],
+      "contractors_or_vendors": [],
+      "dependencies": [],
+      "related_projects": [],
+      "risks_or_constraints": [],
+      "source_pages": [
+        320
+      ],
+      "source_sections": [],
+      "source_tables_or_appendices": [],
+      "evidence": [
+        {
+          "page": 320,
+          "quote": "Project Description: Land acquisition for all park types (neighborhood, community, regional, special purpose), greenways, and natural areas.",
+          "evidence_type": "scope"
+        },
+        {
+          "page": 320,
+          "quote": "Total Appropriated: $2,500,000; Needs Appropriated: $2,125,000; Actual Budget: $4,625,000",
+          "evidence_type": "budget"
+        },
+        {
+          "page": 320,
+          "quote": "Project Funding Sources: Parks Sales Tax, Donations",
+          "evidence_type": "budget"
+        }
+      ],
+      "first_seen_chunk": "chunk_0001",
+      "seen_in_chunks": [
+        "chunk_0001"
+      ],
+      "incomplete_at_chunk_boundary": false,
+      "confidence_score": 0.95,
+      "extraction_notes": "Ward: Citywide",
+      "quality_flags": [],
+      "merged_from_record_ids": []
+    },
+    {
+      "record_id": "proj_46852e605da9a034",
+      "project_id": "00673",
+      "project_name": "Annual Trails",
+      "alternative_project_names": [],
+      "owning_organization": null,
+      "department_or_agency": "Parks & Recreation - Capital Improvement Project",
+      "project_location": "Citywide",
+      "address_or_site": null,
+      "city": null,
+      "county": null,
+      "state": null,
+      "project_category": null,
+      "project_subcategory": null,
+      "infrastructure_domains": [],
+      "project_description": "Funds used to either acquire, construct, or repair new and existing trails and trail related amenities such as bridges. May also be used as a match for future grants.",
+      "problem_or_need": null,
+      "proposed_scope": null,
+      "major_components": [],
+      "deliverables": [],
+      "current_phase": "funding_approved",
+      "phase_evidence": null,
+      "phase_is_inferred": false,
+      "pre_rfp_status": "possible_pre_rfp",
+      "procurement_status": null,
+      "design_status": null,
+      "construction_status": null,
+      "approval_status": null,
+      "funding_status": null,
+      "priority_level": null,
+      "total_project_budget": 1963683.0,
+      "total_project_budget_raw": "Actual Budget: $1,963,683",
+      "current_year_budget": null,
+      "current_year_budget_raw": null,
+      "prior_year_spending": 357695.0,
+      "future_year_funding": 700000.0,
+      "remaining_budget": 142167.0,
+      "requested_funding": null,
+      "approved_funding": 1263683.0,
+      "unfunded_amount": null,
+      "bond_funding": null,
+      "grant_funding": null,
+      "local_funding": null,
+      "state_funding": null,
+      "federal_funding": null,
+      "other_funding": null,
+      "annual_funding_schedule": [],
+      "funding_sources": [
+        {
+          "source_name": "Parks Sales Tax",
+          "source_type": null,
+          "amount": null,
+          "amount_raw": null,
+          "fiscal_year": null,
+          "source_pages": [
+            321
+          ]
+        },
+        {
+          "source_name": "Grant funds",
+          "source_type": null,
+          "amount": null,
+          "amount_raw": null,
+          "fiscal_year": null,
+          "source_pages": [
+            321
+          ]
+        }
+      ],
+      "fund_or_account": null,
+      "budget_conflicts": [],
+      "estimated_start_date": null,
+      "estimated_design_date": null,
+      "estimated_procurement_date": null,
+      "estimated_bid_date": null,
+      "estimated_construction_start": null,
+      "estimated_completion_date": "Ongoing",
+      "timeline_notes": null,
+      "approval_body": null,
+      "approval_date": null,
+      "responsible_contacts": [],
+      "consultants_or_engineers": [],
+      "contractors_or_vendors": [],
+      "dependencies": [],
+      "related_projects": [],
+      "risks_or_constraints": [],
+      "source_pages": [
+        321
+      ],
+      "source_sections": [],
+      "source_tables_or_appendices": [],
+      "evidence": [
+        {
+          "page": 321,
+          "quote": "Project Description: Funds used to either acquire, construct, or repair new and existing trails and trail related amenities such as bridges. May also be used as a match for future grants.",
+          "evidence_type": "scope"
+        },
+        {
+          "page": 321,
+          "quote": "Total Appropriated: $1,263,683; Needs Appropriated: $700,000; Actual Budget: $1,963,683",
+          "evidence_type": "budget"
+        },
+        {
+          "page": 321,
+          "quote": "Project Funding Sources: Parks Sales Tax, Grant funds",
+          "evidence_type": "budget"
+        }
+      ],
+      "first_seen_chunk": "chunk_0001",
+      "seen_in_chunks": [
+        "chunk_0001"
+      ],
+      "incomplete_at_chunk_boundary": false,
+      "confidence_score": 0.95,
+      "extraction_notes": "Ward: Citywide",
+      "quality_flags": [],
+      "merged_from_record_ids": []
+    }
+  ],
+  "validation_issues": [],
+  "duplicate_audit": [
+    {
+      "decision": "merge",
+      "final_record_id": "proj_20868d673de29e2f",
+      "candidate_record_ids": [
+        "proj_20868d673de29e2f",
+        "proj_20868d673de29e2f"
+      ],
+      "candidate_names": [
+        "Park Roads & Parking",
+        "Park Roads & Parking"
+      ],
+      "similarity_scores": [
+        99.0
+      ],
+      "merge_reason": "Deterministic merge based on strong identifiers/similarity",
+      "source_pages": [
+        329
+      ],
+      "resolution_method": "deterministic",
+      "resolution_confidence": 0.99
+    }
+  ],
+  "run_statistics": {
+    "chunks_total": 2,
+    "chunks_completed": 2,
+    "chunks_failed": 0,
+    "api_requests": 2,
+    "api_retries": 0,
+    "prompt_tokens": 7379,
+    "completion_tokens": 7581,
+    "total_tokens": 14960,
+    "pages_native_text": 13,
+    "pages_ocr": 0,
+    "pages_failed": 0
+  },
+  "_note": "Trimmed sample from live CIP smoke test (pages 320-332). Full run outputs are generated locally under outputs/."
+}
