@@ -19,6 +19,7 @@ from org_intel.discovery.source_discovery import discover_sources
 from org_intel.exports.excel_exporter import export_excel_workbook
 from org_intel.exports.json_exporter import export_json_bundle
 from org_intel.exports.markdown_exporter import export_markdown_report
+from org_intel.exports.pdf_exporter import export_pdf_report
 from org_intel.llm.base import LLMProvider
 from org_intel.llm.router import CostLimitExceeded, LLMRouter, build_router
 from org_intel.pipeline.state import RunState
@@ -596,9 +597,22 @@ class PipelineOrchestrator:
 
         artifacts = self._artifacts()
         export_json_bundle(self.output_dir, artifacts)
-        export_markdown_report(self.output_dir, artifacts)
-        export_excel_workbook(self.output_dir, artifacts)
-        self._save_phase("export", {"output_dir": str(self.output_dir)})
+        md_path = export_markdown_report(self.output_dir, artifacts)
+        xlsx_path = export_excel_workbook(self.output_dir, artifacts)
+        try:
+            pdf_path = export_pdf_report(self.output_dir, md_path)
+        except Exception as exc:
+            logger.warning("pdf_export_failed", error=str(exc))
+            pdf_path = None
+        self._save_phase(
+            "export",
+            {
+                "output_dir": str(self.output_dir),
+                "markdown": str(md_path),
+                "excel": str(xlsx_path),
+                "pdf": str(pdf_path) if pdf_path else None,
+            },
+        )
         return artifacts
 
     def _artifacts(self) -> dict[str, Any]:
