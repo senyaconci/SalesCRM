@@ -34,7 +34,8 @@ tmp/
 temp/
 *.log
 checkpoints/
-sample_output/*
+sample_output/**
+!sample_output/
 !sample_output/.gitkeep
 !sample_output/*.json
 
