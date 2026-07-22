@@ -42,9 +42,10 @@ class FakeGlm:
 
 
 class FakeOcr(OcrClient):
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self.api_requests = 0
         self.api_retries = 0
+        self.cost_tracker = kwargs.get("cost_tracker")
 
     def select_ocr_pages(self, pages, *, mode):
         return []

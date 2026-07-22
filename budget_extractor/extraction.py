@@ -17,6 +17,7 @@ from budget_extractor.aggregation import (
 )
 from budget_extractor.checkpoint import CheckpointStore
 from budget_extractor.config import AppConfig
+from budget_extractor.costing import BudgetExceededError, CostTracker
 from budget_extractor.deduplication import consolidate_projects
 from budget_extractor.excel_exporter import export_excel_workbook
 from budget_extractor.glm_client import GlmClient
@@ -62,10 +63,14 @@ class ExtractionPipeline:
     ):
         self.config = config
         self.logger = logger
-        self.glm = glm_client or GlmClient(config)
+        self.cost_tracker = CostTracker(max_cost_usd=config.max_cost_usd)
+        self.glm = glm_client or GlmClient(config, cost_tracker=self.cost_tracker)
+        if glm_client is not None and getattr(glm_client, "cost_tracker", None) is None:
+            glm_client.cost_tracker = self.cost_tracker  # type: ignore[attr-defined]
         self.ocr: OcrClient | None = None
         self._ocr_factory = ocr_client
         self.stats = RunStatistics()
+        self.budget_stopped = False
 
     def run(self, input_path: str, output_dir: str | Path) -> tuple[FinalExtractionOutput, dict[str, Path], int]:
         started = datetime.now(timezone.utc)
@@ -93,7 +98,9 @@ class ExtractionPipeline:
         )
 
         # OCR stage
-        self.ocr = self._ocr_factory or OcrClient(self.config, checkpoint)
+        self.ocr = self._ocr_factory or OcrClient(
+            self.config, checkpoint, cost_tracker=self.cost_tracker
+        )
         ocr_pages = self.ocr.select_ocr_pages(extracted.pages, mode=self.config.ocr_mode)
         ocr_result = self.ocr.run_ocr(
             source_pdf=document.local_path,
@@ -176,13 +183,39 @@ class ExtractionPipeline:
 
         # Pass B
         self.logger.event("INFO", "Starting consolidation pass", stage="consolidation")
-        final_projects, duplicate_audit = consolidate_projects(
-            raw_projects,
-            document_hash=document.sha256,
-            glm_client=self.glm,
-            prompts_dir=str(self.config.prompts_dir),
-            use_llm_for_ambiguous=True,
-        )
+        use_llm_dupes = True
+        if self.cost_tracker.max_cost_usd is not None:
+            remaining = self.cost_tracker.remaining_usd() or 0.0
+            if remaining < 0.25:
+                use_llm_dupes = False
+                self.logger.event(
+                    "WARNING",
+                    "Skipping GLM duplicate resolution to preserve spend cap",
+                    stage="budget",
+                    status="skipped",
+                )
+        try:
+            final_projects, duplicate_audit = consolidate_projects(
+                raw_projects,
+                document_hash=document.sha256,
+                glm_client=self.glm,
+                prompts_dir=str(self.config.prompts_dir),
+                use_llm_for_ambiguous=use_llm_dupes,
+            )
+        except BudgetExceededError as exc:
+            self.budget_stopped = True
+            self.logger.event(
+                "WARNING",
+                f"Consolidation hit spend cap; falling back to deterministic merges: {exc}",
+                stage="budget",
+                status="stopped",
+            )
+            final_projects, duplicate_audit = consolidate_projects(
+                raw_projects,
+                document_hash=document.sha256,
+                glm_client=None,
+                use_llm_for_ambiguous=False,
+            )
         checkpoint.mark_consolidation_completed()
 
         merged_count = max(0, len(raw_projects) - len(final_projects))
@@ -192,6 +225,20 @@ class ExtractionPipeline:
             duplicate_merged_count=merged_count,
         )
         validation_issues.extend(build_document_quality_issues(final_projects))
+        if self.budget_stopped and self.stats.chunks_completed < self.stats.chunks_total:
+            validation_issues.append(
+                ValidationIssue(
+                    severity="warning",
+                    issue_type="budget_cap_stop",
+                    description=(
+                        f"Processing stopped early to respect spend cap "
+                        f"(${self.config.max_cost_usd:.2f}). "
+                        f"Estimated spend ${self.cost_tracker.estimated_cost_usd:.4f}. "
+                        f"Completed {self.stats.chunks_completed}/{self.stats.chunks_total} chunks."
+                    ),
+                    recommended_review="Raise --max-cost-usd or resume later to finish remaining chunks.",
+                )
+            )
 
         completed = datetime.now(timezone.utc)
         self._refresh_api_stats()
@@ -237,13 +284,25 @@ class ExtractionPipeline:
         paths["xlsx"] = xlsx_path
         checkpoint.mark_exports_completed()
 
-        exit_code = 0 if self.stats.chunks_failed == 0 else 2
+        exit_code = 0
+        if self.stats.chunks_failed or self.budget_stopped:
+            exit_code = 2
+
         self.logger.event(
             "INFO",
             f"Extraction complete: {summary.final_project_count} projects "
-            f"({self.stats.chunks_failed} failed chunks)",
+            f"({self.stats.chunks_failed} failed chunks); "
+            f"estimated API cost ${self.cost_tracker.estimated_cost_usd:.4f}",
             stage="complete",
             status="ok" if exit_code == 0 else "partial",
+        )
+        print(
+            f"Estimated API cost: ${self.cost_tracker.estimated_cost_usd:.4f}"
+            + (
+                f" / cap ${self.config.max_cost_usd:.2f}"
+                if self.config.max_cost_usd is not None
+                else ""
+            )
         )
         return final, paths, exit_code
 
@@ -300,13 +359,33 @@ class ExtractionPipeline:
 
         if self.config.max_workers <= 1 or len(pending) <= 1:
             for chunk in pending:
-                chunk_id, result = handle(chunk)
+                try:
+                    chunk_id, result = handle(chunk)
+                except BudgetExceededError as exc:
+                    self.budget_stopped = True
+                    self.logger.event(
+                        "WARNING",
+                        f"Stopping Pass A due to spend cap: {exc}",
+                        stage="budget",
+                        status="stopped",
+                    )
+                    break
                 results[chunk_id] = result
         else:
             with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
                 futures = {executor.submit(handle, chunk): chunk for chunk in pending}
                 for future in as_completed(futures):
-                    chunk_id, result = future.result()
+                    try:
+                        chunk_id, result = future.result()
+                    except BudgetExceededError as exc:
+                        self.budget_stopped = True
+                        self.logger.event(
+                            "WARNING",
+                            f"Stopping Pass A due to spend cap: {exc}",
+                            stage="budget",
+                            status="stopped",
+                        )
+                        break
                     results[chunk_id] = result
 
         return results
@@ -487,6 +566,8 @@ class ExtractionPipeline:
             )
             return result
 
+        except BudgetExceededError:
+            raise
         except Exception as exc:  # noqa: BLE001
             status.update(
                 {

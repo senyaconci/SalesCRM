@@ -18,6 +18,7 @@ from tenacity import (
 
 from budget_extractor.checkpoint import CheckpointStore
 from budget_extractor.config import AppConfig
+from budget_extractor.costing import BudgetExceededError, CostTracker
 from budget_extractor.pdf_processor import PageTextInfo, split_pdf_pages
 from budget_extractor.utils import atomic_write_json, ensure_dir, read_json, sha256_file
 
@@ -48,9 +49,15 @@ def _is_retryable(exc: BaseException) -> bool:
 class OcrClient:
     """Calls Z.AI `/layout_parsing` for low-text or forced OCR pages."""
 
-    def __init__(self, config: AppConfig, checkpoint: CheckpointStore | None = None):
+    def __init__(
+        self,
+        config: AppConfig,
+        checkpoint: CheckpointStore | None = None,
+        cost_tracker: CostTracker | None = None,
+    ):
         self.config = config
         self.checkpoint = checkpoint
+        self.cost_tracker = cost_tracker or CostTracker(max_cost_usd=config.max_cost_usd)
         self._client: Any | None = None
         self.api_requests = 0
         self.api_retries = 0
@@ -106,14 +113,29 @@ class OcrClient:
                     continue
 
                 try:
+                    if self.cost_tracker.max_cost_usd is not None:
+                        remaining = self.cost_tracker.remaining_usd() or 0.0
+                        if remaining < 0.05:
+                            raise BudgetExceededError(
+                                f"Insufficient budget for OCR (remaining=${remaining:.4f})"
+                            )
                     result = self._ocr_page_group(source_pdf, sub_pages, ocr_dir)
                     page_texts.update(result["page_texts"])
                     request_ids.extend(result.get("request_ids", []))
                     raw_responses.append(result.get("raw", {}))
+                    raw = result.get("raw") or {}
+                    usage = raw.get("usage") or {}
+                    total_tokens = int(usage.get("total_tokens") or 0)
+                    if total_tokens:
+                        self.cost_tracker.add_ocr_usage(total_tokens)
                     cache_path = ocr_dir / f"ocr_{sub_pages[0]:04d}_{sub_pages[-1]:04d}.json"
                     atomic_write_json(cache_path, result)
                     if self.checkpoint:
                         self.checkpoint.set_ocr_cache(cache_key, cache_path)
+                except BudgetExceededError:
+                    LOGGER.warning("OCR stopped early due to spend cap")
+                    failed_pages.extend(sub_pages)
+                    break
                 except Exception as exc:  # noqa: BLE001
                     LOGGER.warning(
                         "OCR failed for pages %s-%s: %s",

@@ -92,6 +92,12 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Preserve extracted text and raw model responses",
     )
+    parser.add_argument(
+        "--max-cost-usd",
+        type=float,
+        default=None,
+        help="Hard estimated API spend cap in USD (stops before exceeding)",
+    )
     return parser
 
 
@@ -114,6 +120,7 @@ def main(argv: list[str] | None = None) -> int:
             max_workers=args.max_workers,
             log_level=args.log_level,  # type: ignore[arg-type]
             keep_intermediate=args.keep_intermediate,
+            max_cost_usd=args.max_cost_usd,
         )
         # Keep intermediates whenever explicitly requested; also keep raw responses
         # in checkpoints by default via CheckpointStore.

@@ -64,6 +64,7 @@ class AppConfig:
     keep_intermediate: bool = False
     temperature: float = 0.1
     top_p: float = 0.2
+    max_cost_usd: float | None = None
     prompts_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent / "prompts")
 
     def validate(self) -> None:
@@ -93,6 +94,8 @@ class AppConfig:
             raise ValueError("end_page must be >= start_page")
         if self.ocr_mode not in {"auto", "always", "never"}:
             raise ValueError("ocr_mode must be auto, always, or never")
+        if self.max_cost_usd is not None and self.max_cost_usd <= 0:
+            raise ValueError("max_cost_usd must be > 0 when set")
 
     def compatibility_dict(self) -> dict[str, Any]:
         """Fields that must match for a safe resume."""
@@ -138,6 +141,7 @@ def load_config(
     max_workers: int | None = None,
     log_level: LogLevel | None = None,
     keep_intermediate: bool = False,
+    max_cost_usd: float | None = None,
     dotenv_path: str | Path | None = None,
 ) -> AppConfig:
     """Load configuration from .env / environment, then apply CLI overrides."""
@@ -169,5 +173,6 @@ def load_config(
         end_page=end_page,
         log_level=log_level or "INFO",
         keep_intermediate=keep_intermediate,
+        max_cost_usd=max_cost_usd,
     )
     return config

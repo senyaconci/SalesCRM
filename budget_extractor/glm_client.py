@@ -15,6 +15,7 @@ from tenacity import (
 )
 
 from budget_extractor.config import AppConfig
+from budget_extractor.costing import BudgetExceededError, CostTracker
 
 LOGGER = logging.getLogger(__name__)
 
@@ -55,8 +56,9 @@ def _is_retryable(exc: BaseException) -> bool:
 class GlmClient:
     """Thin wrapper around official `zai-sdk` chat completions."""
 
-    def __init__(self, config: AppConfig):
+    def __init__(self, config: AppConfig, cost_tracker: CostTracker | None = None):
         self.config = config
+        self.cost_tracker = cost_tracker or CostTracker(max_cost_usd=config.max_cost_usd)
         self._client: Any | None = None
         self.api_requests = 0
         self.api_retries = 0
@@ -93,6 +95,20 @@ class GlmClient:
             before_sleep=lambda rs: setattr(self, "api_retries", self.api_retries + 1),
         )
         def _invoke() -> GlmCompletionResult:
+            # Conservative pre-flight reserve so a single call cannot blow the cap.
+            if self.cost_tracker.max_cost_usd is not None:
+                remaining = self.cost_tracker.remaining_usd() or 0.0
+                # Assume up to ~12k prompt + configured max output as worst case.
+                worst = self.cost_tracker.estimate_chat_cost(
+                    model=self.config.model,
+                    prompt_tokens=12_000,
+                    completion_tokens=min(self.config.max_output_tokens, 8_000),
+                )
+                if remaining < min(worst, 0.15):
+                    raise BudgetExceededError(
+                        f"Insufficient remaining budget for another GLM call "
+                        f"(remaining=${remaining:.4f}, cap=${self.cost_tracker.max_cost_usd:.2f})"
+                    )
             self.api_requests += 1
             client = self._get_client()
             kwargs: dict[str, Any] = {
@@ -145,6 +161,24 @@ class GlmClient:
         self.prompt_tokens += prompt_tokens
         self.completion_tokens += completion_tokens
         self.total_tokens += total_tokens
+
+        cached_prompt_tokens = 0
+        details = usage.get("prompt_tokens_details") or {}
+        if isinstance(details, dict):
+            cached_prompt_tokens = int(details.get("cached_tokens") or 0)
+        cost = self.cost_tracker.add_chat_usage(
+            model=self.config.model,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            cached_prompt_tokens=cached_prompt_tokens,
+        )
+        LOGGER.info(
+            "GLM usage prompt=%s completion=%s cost=$%.4f cumulative=$%.4f",
+            prompt_tokens,
+            completion_tokens,
+            cost,
+            self.cost_tracker.estimated_cost_usd,
+        )
 
         truncated = finish_reason in {"length", "max_tokens"}
         actual_request_id = raw.get("request_id") or raw.get("id") or request_id
