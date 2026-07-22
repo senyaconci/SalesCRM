@@ -9,6 +9,13 @@ from org_intel.schemas.enums import DocumentType, SourcePriority, SourceRole
 from org_intel.schemas.source import SourceRecord, SourceRegistry
 
 
+def re_search_cip(title_l: str, url_l: str) -> bool:
+    return any(
+        token in title_l or token in url_l
+        for token in ("capital improvement", "/cip", "cipweb", "project_search.php")
+    )
+
+
 @dataclass
 class AnchorSelection:
     document: DocumentRecord | None
@@ -55,6 +62,18 @@ def select_anchor(
             score += 5
         if doc.status and doc.status.value in {"adopted", "approved", "active"}:
             score += 8
+
+        url_l = (doc.url or "").lower()
+        title_l = (doc.title or "").lower()
+        # Strong boost for live CIP registries / search portals.
+        if "cipweb" in url_l or "project_search.php" in url_l or "display_project.php" in url_l:
+            score += 80
+        if re_search_cip(title_l, url_l):
+            score += 40
+        # Demote false-positive "registration" / apply portals.
+        if any(x in title_l or x in url_l for x in ("register", "registration", "apply-and-register", "bow hunter")):
+            if "cip" not in title_l and "capital" not in title_l:
+                score -= 120
 
         source = sources_by_id.get(doc.source_id or "")
         if source:

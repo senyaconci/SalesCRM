@@ -54,6 +54,11 @@ def _from_html(
     soup = BeautifulSoup(html, "lxml")
     records: list[ShallowProjectIndexRecord] = []
 
+    # Prefer structured CIP search tables with per-row detail links.
+    cip_records = _from_cip_search_table(organization_id, anchor, soup)
+    if cip_records:
+        return _dedupe_index(cip_records)
+
     for table in soup.find_all("table"):
         rows = []
         for tr in table.find_all("tr"):
@@ -184,6 +189,82 @@ def _from_tabular(
         if rec:
             records.append(rec)
     return _dedupe_index(records)
+
+
+def _from_cip_search_table(
+    organization_id: str,
+    anchor: DocumentRecord,
+    soup: BeautifulSoup,
+) -> list[ShallowProjectIndexRecord]:
+    """Parse live CIP registries such as Columbia's cipweb project_search table."""
+    records: list[ShallowProjectIndexRecord] = []
+    for table in soup.find_all("table"):
+        header_cells = table.find("tr")
+        if not header_cells:
+            continue
+        header = [
+            clean_whitespace(c.get_text(" ", strip=True)).lower()
+            for c in header_cells.find_all(["th", "td"])
+        ]
+        joined = " ".join(header)
+        if not (
+            "project" in joined
+            and ("status" in joined or "year" in joined or "division" in joined)
+        ):
+            continue
+        for tr in table.find_all("tr")[1:]:
+            cells = [clean_whitespace(td.get_text(" ", strip=True)) for td in tr.find_all(["th", "td"])]
+            if len(cells) < 2:
+                continue
+            name = cells[0]
+            if not name or name.lower() in {"project", "total", "nan"}:
+                continue
+            link = tr.find("a", href=True)
+            detail_url = None
+            if link:
+                from urllib.parse import urljoin
+
+                detail_url = urljoin(anchor.url, link["href"])
+            pid_match = _PROJECT_ID_RE.search(name)
+            pid = pid_match.group(1).replace(" ", "") if pid_match else None
+            # Common CIP columns: Project | Status | Const. Year | Ballot | Ward | Division
+            stage = cells[1] if len(cells) > 1 else None
+            year = cells[2] if len(cells) > 2 else None
+            ballot = cells[3] if len(cells) > 3 else None
+            division = cells[5] if len(cells) > 5 else (cells[4] if len(cells) > 4 else None)
+            rtype, _, _ = classify_record_type(name, division, stage)
+            records.append(
+                ShallowProjectIndexRecord(
+                    organization_id=organization_id,
+                    project_id=pid,
+                    project_name=name[:240],
+                    department=division,
+                    category=division,
+                    published_stage=stage,
+                    construction_year=year if year and year.lower() not in {"none", "none..."} else None,
+                    ballot_label=ballot or None,
+                    project_detail_url=detail_url,
+                    source_url=anchor.url,
+                    record_type=rtype,
+                    confidence=0.85,
+                    evidence=[
+                        Evidence(
+                            document_id=anchor.document_id,
+                            url=detail_url or anchor.url,
+                            title=anchor.title,
+                            quote=" | ".join(cells)[:400],
+                            supports_fields=[
+                                "project_name",
+                                "project_id",
+                                "published_stage",
+                                "construction_year",
+                            ],
+                            confidence=0.85,
+                        )
+                    ],
+                )
+            )
+    return records
 
 
 def _looks_like_project_header(header: list[str]) -> bool:

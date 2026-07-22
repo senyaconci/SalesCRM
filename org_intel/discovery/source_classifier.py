@@ -31,12 +31,28 @@ _PORTAL_HINTS: list[tuple[re.Pattern[str], SourceRole, list[ContentRole], Source
 ]
 
 _CONTENT_HINTS: list[tuple[re.Pattern[str], SourceRole, list[ContentRole], SourcePriority]] = [
+    (
+        re.compile(r"cipweb|display_project\.php|project_search\.php", re.I),
+        SourceRole.LIVE_PROJECT_REGISTRY,
+        [ContentRole.PROJECT_INVENTORY, ContentRole.FINANCIAL],
+        SourcePriority.ANCHOR,
+    ),
     (re.compile(r"capital improvement|\bcip\b|capital projects", re.I), SourceRole.CIP_PORTAL, [ContentRole.PROJECT_INVENTORY, ContentRole.FINANCIAL], SourcePriority.ANCHOR),
     (re.compile(r"\bbudget\b|financial reports|acfr", re.I), SourceRole.BUDGET_PORTAL, [ContentRole.FINANCIAL], SourcePriority.HIGH),
     (re.compile(r"\bbids?\b|rfp|rfq|procurement|purchasing|solicit", re.I), SourceRole.PROCUREMENT_PAGE, [ContentRole.PROCUREMENT], SourcePriority.HIGH),
     (re.compile(r"agenda|minutes|council|board meetings", re.I), SourceRole.BOARD_AGENDA, [ContentRole.APPROVAL], SourcePriority.HIGH),
     (re.compile(r"master plan|facilities plan", re.I), SourceRole.MASTER_PLAN_ARCHIVE, [ContentRole.TECHNICAL_PLANNING], SourcePriority.MEDIUM),
-    (re.compile(r"project (tracker|map|status)|gis", re.I), SourceRole.LIVE_PROJECT_REGISTRY, [ContentRole.PROJECT_INVENTORY], SourcePriority.ANCHOR),
+    # Avoid matching generic "registration" pages; require capital/project tracker language.
+    (
+        re.compile(
+            r"(capital|cip).{0,40}(project (tracker|map|status|registry|search))"
+            r"|project (tracker|status dashboard)|capital projects dashboard|\bgis\b.{0,20}project",
+            re.I,
+        ),
+        SourceRole.LIVE_PROJECT_REGISTRY,
+        [ContentRole.PROJECT_INVENTORY],
+        SourcePriority.ANCHOR,
+    ),
     (re.compile(r"bond|official statement|disclosure", re.I), SourceRole.BOND_DISCLOSURE, [ContentRole.FINANCING], SourcePriority.MEDIUM),
     (re.compile(r"public (notice|engagement|hearing)", re.I), SourceRole.PUBLIC_ENGAGEMENT, [ContentRole.PUBLIC_ENGAGEMENT], SourcePriority.LOW),
 ]

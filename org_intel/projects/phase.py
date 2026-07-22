@@ -34,6 +34,13 @@ def normalize_phase(text: str | None) -> tuple[ProjectPhase, bool, str | None]:
     """Return (phase, is_inferred, evidence_snippet)."""
     if not text:
         return ProjectPhase.UNKNOWN, False, None
+    # Prefer the leading status token from CIP registries (e.g. "Cancelled 05/02/24-Proposed...").
+    head = text.strip().split(None, 1)[0] if text.strip() else ""
+    if head:
+        for pattern, phase, inferred in _PHASE_PATTERNS:
+            match = pattern.search(head)
+            if match:
+                return phase, inferred, match.group(0)
     for pattern, phase, inferred in _PHASE_PATTERNS:
         match = pattern.search(text)
         if match:

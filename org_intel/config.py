@@ -25,11 +25,11 @@ class Settings(BaseSettings):
     llm_provider: str = "glm"
     glm_api_key: str | None = None
     glm_base_url: str = "https://open.bigmodel.cn/api/paas/v4"
-    glm_cheap_model: str = "glm-4-flash"
-    glm_structured_model: str = "glm-4-air"
+    glm_cheap_model: str = "glm-4.5-flash"
+    glm_structured_model: str = "glm-4.5-air"
     glm_reasoning_model: str = "glm-4-plus"
-    glm_ocr_model: str = "glm-4v"
-    glm_json_repair_model: str = "glm-4-flash"
+    glm_ocr_model: str = "glm-4.5-flash"
+    glm_json_repair_model: str = "glm-4.5-flash"
 
     openai_api_key: str | None = None
     openai_base_url: str = "https://api.openai.com/v1"
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     include_third_party_sources: bool = False
 
     user_agent: str = "OrganizationCapitalIntelligence/1.0 (+research; respectful crawler)"
-    request_timeout_seconds: float = 45.0
+    request_timeout_seconds: float = 120.0
     cache_dir: Path = Path(".org_intel_cache")
     database_url: str = "sqlite:///./org_intel.db"
     log_level: LogLevel = "INFO"

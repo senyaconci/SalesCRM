@@ -5,12 +5,20 @@ from __future__ import annotations
 from typing import Any
 
 import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from org_intel.llm.base import LLMProvider, LLMRequest, LLMResponse
 from org_intel.utils.logging import get_logger
 
 logger = get_logger(__name__)
+
+
+def _retryable_http_error(exc: BaseException) -> bool:
+    if isinstance(exc, (httpx.TimeoutException, httpx.TransportError)):
+        return True
+    if isinstance(exc, httpx.HTTPStatusError):
+        return exc.response.status_code in {408, 429, 500, 502, 503, 504}
+    return False
 
 
 class GLMProvider(LLMProvider):
@@ -20,7 +28,7 @@ class GLMProvider(LLMProvider):
         self,
         api_key: str | None,
         base_url: str,
-        timeout: float = 90.0,
+        timeout: float = 120.0,
     ) -> None:
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
@@ -29,7 +37,12 @@ class GLMProvider(LLMProvider):
     def is_available(self) -> bool:
         return bool(self.api_key)
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=8))
+    @retry(
+        stop=stop_after_attempt(4),
+        wait=wait_exponential(multiplier=2, min=2, max=30),
+        retry=retry_if_exception(_retryable_http_error),
+        reraise=True,
+    )
     def complete(self, request: LLMRequest, model: str) -> LLMResponse:
         if not self.api_key:
             raise RuntimeError("GLM API key is not configured (ORG_INTEL_GLM_API_KEY).")
@@ -50,12 +63,22 @@ class GLMProvider(LLMProvider):
         url = f"{self.base_url}/chat/completions"
         with httpx.Client(timeout=self.timeout) as client:
             response = client.post(url, headers=headers, json=payload)
+            if response.status_code >= 400:
+                logger.error(
+                    "glm_http_error",
+                    status=response.status_code,
+                    model=model,
+                    body=response.text[:500],
+                )
             response.raise_for_status()
             data = response.json()
 
         choice = (data.get("choices") or [{}])[0]
         message = choice.get("message") or {}
         content = message.get("content") or ""
+        # Some GLM reasoning models put usable text in reasoning_content.
+        if not content and message.get("reasoning_content"):
+            content = str(message.get("reasoning_content") or "")
         usage = data.get("usage") or {}
         return LLMResponse(
             content=content,

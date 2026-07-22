@@ -72,11 +72,10 @@ def classify_opportunity(
     project.pursuit_window = assessment.pursuit_window
     project.validation_questions = assessment.validation_questions
 
+    # Use the expensive reasoning model only for the strongest opportunity classes.
     if router is not None and classification in {
         PreRfqClassification.STRONG_PRE_RFQ,
         PreRfqClassification.POSSIBLE_PRE_RFQ,
-        PreRfqClassification.MONITOR,
-        PreRfqClassification.INSUFFICIENT_INFORMATION,
     }:
         try:
             data = router.complete_json(
@@ -116,8 +115,11 @@ def classify_opportunity(
 def assess_projects(
     projects: list[ProjectRecord],
     router: LLMRouter | None = None,
+    *,
+    max_llm_assessments: int = 15,
 ) -> list[OpportunityAssessment]:
-    out: list[OpportunityAssessment] = []
+    """Classify all projects deterministically; LLM-refine only a bounded top set."""
+    preliminary: list[OpportunityAssessment] = []
     for project in projects:
         if not project.lead_eligible and project.record_type not in {
             RecordType.SPECIFIC_CAPITAL_PROJECT,
@@ -125,22 +127,51 @@ def assess_projects(
             RecordType.MAJOR_EQUIPMENT_PURCHASE,
             RecordType.CAPITAL_PROGRAM,
         }:
-            out.append(
-                OpportunityAssessment(
-                    organization_id=project.organization_id,
-                    project_record_id=project.record_id,
-                    project_id=project.project_id,
-                    project_name=project.project_name,
-                    classification=PreRfqClassification.NOT_AN_EXTERNAL_OPPORTUNITY,
-                    unknowns=["Record not lead-eligible"],
-                    confidence=0.8,
-                    notes=project.lead_exclusion_reason,
-                )
+            assessment = OpportunityAssessment(
+                organization_id=project.organization_id,
+                project_record_id=project.record_id,
+                project_id=project.project_id,
+                project_name=project.project_name,
+                classification=PreRfqClassification.NOT_AN_EXTERNAL_OPPORTUNITY,
+                unknowns=["Record not lead-eligible"],
+                confidence=0.8,
+                notes=project.lead_exclusion_reason,
             )
             project.pre_rfq_classification = PreRfqClassification.NOT_AN_EXTERNAL_OPPORTUNITY
+            preliminary.append(assessment)
             continue
-        out.append(classify_opportunity(project, router=router))
-    return out
+        preliminary.append(classify_opportunity(project, router=None))
+
+    # Optionally refine the strongest candidates with the reasoning model.
+    if router is not None and max_llm_assessments > 0:
+        rank = {
+            PreRfqClassification.STRONG_PRE_RFQ: 0,
+            PreRfqClassification.POSSIBLE_PRE_RFQ: 1,
+        }
+        projects_by_id = {p.record_id: p for p in projects}
+
+        def _sort_key(assessment: OpportunityAssessment) -> tuple:
+            project = projects_by_id.get(assessment.project_record_id)
+            return (
+                rank.get(assessment.classification, 9),
+                -(project.total_project_cost or 0 if project else 0),
+            )
+
+        ordered = [
+            a.project_record_id
+            for a in sorted(preliminary, key=_sort_key)
+            if a.classification in rank
+        ][:max_llm_assessments]
+        refine_ids = set(ordered)
+        out: list[OpportunityAssessment] = []
+        for assessment in preliminary:
+            if assessment.project_record_id in refine_ids:
+                project = projects_by_id[assessment.project_record_id]
+                out.append(classify_opportunity(project, router=router))
+            else:
+                out.append(assessment)
+        return out
+    return preliminary
 
 
 def _deterministic(
@@ -155,12 +186,27 @@ def _deterministic(
             [],
             ["Budget line item without defined external scope"],
         )
+    if project.normalized_phase == ProjectPhase.CANCELLED:
+        return (
+            PreRfqClassification.NOT_AN_EXTERNAL_OPPORTUNITY,
+            [],
+            ["Project cancelled"],
+        )
+    if project.normalized_phase == ProjectPhase.DEFERRED:
+        return PreRfqClassification.TOO_EARLY, [], ["Project deferred"]
     if project.normalized_phase == ProjectPhase.COMPLETED:
         return PreRfqClassification.COMPLETED, [], ["Phase completed"]
     if project.normalized_phase == ProjectPhase.CONSTRUCTION:
         return PreRfqClassification.CONSTRUCTION_UNDERWAY, [], ["Construction underway"]
     if project.normalized_phase == ProjectPhase.CONTRACT_AWARDED:
         return PreRfqClassification.CONTRACT_AWARDED, [], ["Contract awarded"]
+    published = (project.published_status or "").lower()
+    if published.startswith("cancelled") or published.startswith("canceled"):
+        return (
+            PreRfqClassification.NOT_AN_EXTERNAL_OPPORTUNITY,
+            [],
+            ["Published status cancelled"],
+        )
     if project.procurement_status in {
         ProcurementStatus.CONSULTANT_SELECTED,
         ProcurementStatus.CONTRACTOR_SELECTED,

@@ -34,7 +34,7 @@ def enrich_projects(
     include_completed: bool = False,
     min_project_value: float | None = None,
     project_ids: list[str] | None = None,
-    max_projects: int = 100,
+            max_projects: int = 250,
 ) -> list[ProjectRecord]:
     docs = {d.document_id: d for d in inventory.documents}
     links_by_project: dict[str, list[ProjectSourceLink]] = {}

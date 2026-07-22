@@ -235,6 +235,7 @@ class PipelineOrchestrator:
         if self._skip("anchor_selection") and self.state.anchor_selection:
             return
         assert self.state.document_inventory and self.state.source_registry
+        self._inject_cip_search_document()
         selection = select_anchor(self.state.document_inventory, self.state.source_registry)
         payload = {
             "score": selection.score,
@@ -322,11 +323,127 @@ class PipelineOrchestrator:
             include_completed=self.run.include_completed,
             min_project_value=self.run.min_project_value,
             project_ids=self.run.project_id or None,
+            max_projects=min(250, self.settings.max_documents * 3),
         )
+        projects = self._enrich_cip_detail_pages(projects)
         for p in projects:
             score_project_confidence(p)
         self.state.projects_full = projects
         self._save_phase("project_extraction", projects)
+
+    def _inject_cip_search_document(self) -> None:
+        """Ensure live CIP search portals are available as anchor candidates."""
+        from org_intel.schemas.document import DocumentRecord
+        from org_intel.schemas.enums import ContentRole, DocumentType
+
+        assert self.state.document_inventory and self.state.source_registry
+        existing = {d.url.rstrip("/") for d in self.state.document_inventory.documents}
+        for source in self.state.source_registry.sources:
+            url = (source.url or "").rstrip("/")
+            if not url:
+                continue
+            if "project_search.php" in url or ("cipweb" in url and "display_project" not in url):
+                # Normalize to the searchable CIP index endpoint when possible.
+                if "project_search.php" not in url and "cipweb" in url:
+                    continue
+                if url in existing:
+                    continue
+                doc = DocumentRecord(
+                    title=source.source_name or "CIP Project Search",
+                    document_type=DocumentType.LIVE_REGISTRY,
+                    url=source.url,
+                    source_id=source.source_id,
+                    publishing_entity=source.publishing_entity,
+                    file_type="html",
+                    likely_project_relevance=0.98,
+                    likely_financial_relevance=0.7,
+                    content_roles=[ContentRole.PROJECT_INVENTORY, ContentRole.FINANCIAL],
+                    confidence=0.95,
+                )
+                self.state.document_inventory.documents.insert(0, doc)
+                existing.add(url)
+        # Also add canonical Columbia-style CIP search if /cip source exists.
+        for source in self.state.source_registry.sources:
+            if source.url and source.url.rstrip("/").endswith("/cip"):
+                candidate = source.url.replace("/cip", "/webapps/cipweb/project_search.php")
+                # Prefer absolute known pattern on same host
+                from org_intel.utils.urls import domain_of
+
+                host = domain_of(source.url)
+                if host:
+                    candidate = f"https://{host}/webapps/cipweb/project_search.php"
+                if candidate.rstrip("/") not in existing:
+                    doc = DocumentRecord(
+                        title="Capital Improvement Projects (CIP) Search",
+                        document_type=DocumentType.LIVE_REGISTRY,
+                        url=candidate,
+                        source_id=source.source_id,
+                        publishing_entity=source.publishing_entity,
+                        file_type="html",
+                        likely_project_relevance=0.99,
+                        likely_financial_relevance=0.75,
+                        content_roles=[ContentRole.PROJECT_INVENTORY],
+                        confidence=0.9,
+                    )
+                    self.state.document_inventory.documents.insert(0, doc)
+                    existing.add(candidate.rstrip("/"))
+
+    def _enrich_cip_detail_pages(self, projects: list[ProjectRecord]) -> list[ProjectRecord]:
+        from org_intel.projects.cip_detail import enrich_from_cip_detail_html
+        from org_intel.projects.phase import normalize_phase
+
+        # Cap live detail fetches for affordability; prioritize non-terminal stages.
+        terminal = {"cancelled", "closed", "in service", "completed"}
+        ranked = sorted(
+            projects,
+            key=lambda p: (
+                0
+                if (p.published_status or "").lower().split()[0:1]
+                and (p.published_status or "").lower().split()[0] not in terminal
+                else 1,
+                p.project_name,
+            ),
+        )
+        fetched = 0
+        max_fetch = min(80, self.settings.max_documents)
+        for project in ranked:
+            detail = None
+            for link in project.source_links:
+                pass
+            # Prefer shallow index detail URL carried via evidence/source
+            # Reconstruct from project_index match
+            match = next(
+                (
+                    i
+                    for i in self.state.project_index
+                    if (i.project_id and i.project_id == project.project_id)
+                    or i.project_name == project.project_name
+                ),
+                None,
+            )
+            if match and match.project_detail_url:
+                detail = match.project_detail_url
+            if not detail or "display_project.php" not in detail:
+                continue
+            if fetched >= max_fetch:
+                break
+            stage = (project.published_status or "").lower()
+            if any(t in stage for t in terminal) and not self.run.include_completed:
+                continue
+            try:
+                result = self.http.fetch(detail)
+                project = enrich_from_cip_detail_html(project, result.text, detail)
+                phase, inferred, evidence = normalize_phase(
+                    project.published_status or project.phase_evidence or ""
+                )
+                if phase.value != "unknown":
+                    project.normalized_phase = phase
+                    project.phase_is_inferred = inferred
+                    project.phase_evidence = evidence or project.phase_evidence
+                fetched += 1
+            except Exception:
+                continue
+        return ranked
 
     def _phase_procurement(self) -> None:
         if self._skip("procurement_validation") and self.state.solicitations is not None:

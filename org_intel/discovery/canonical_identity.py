@@ -129,7 +129,13 @@ def build_canonical_identity(
     )
 
     if router is not None and router.provider.name != "mock":
-        identity = _enrich_with_llm(identity, page, router)
+        try:
+            identity = _enrich_with_llm(identity, page, router)
+        except Exception:
+            # Deterministic identity already captured; LLM enrichment is optional.
+            identity.ambiguity_notes.append(
+                "LLM identity enrichment failed; continuing with official-page evidence only."
+            )
 
     if identity.organization_type == OrganizationType.UNKNOWN and org_type:
         try:
