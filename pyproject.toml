@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "org-intel"
+version = "1.0.0"
+description = "Organization Capital Intelligence — evidence-backed capital project and pre-RFQ opportunity mapping"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Organization Capital Intelligence" }]
+dependencies = [
+  "pydantic>=2.6",
+  "pydantic-settings>=2.2",
+  "sqlalchemy>=2.0",
+  "httpx>=0.27",
+  "beautifulsoup4>=4.12",
+  "lxml>=5.0",
+  "pymupdf>=1.24",
+  "tenacity>=8.2",
+  "rapidfuzz>=3.6",
+  "pandas>=2.2",
+  "openpyxl>=3.1",
+  "python-dotenv>=1.0",
+  "structlog>=24.1",
+  "playwright>=1.42",
+  "tldextract>=5.1",
+  "python-dateutil>=2.9",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-asyncio>=0.23",
+  "pytest-cov>=5.0",
+  "respx>=0.21",
+]
+
+[project.scripts]
+org-intel = "org_intel.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["org_intel*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

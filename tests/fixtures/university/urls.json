@@ -1,0 +1,18 @@
+{
+  "https://www.exampleu.edu": {
+    "file": "home.html",
+    "content_type": "text/html"
+  },
+  "https://www.exampleu.edu/facilities": {
+    "file": "facilities.html",
+    "content_type": "text/html"
+  },
+  "https://www.exampleu.edu/capital": {
+    "file": "capital.html",
+    "content_type": "text/html"
+  },
+  "https://www.exampleu.edu/procurement": {
+    "file": "procurement.html",
+    "content_type": "text/html"
+  }
+}
