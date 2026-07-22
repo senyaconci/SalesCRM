@@ -1,0 +1,22 @@
+{
+  "https://www.examplewater.gov": {
+    "file": "home.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplewater.gov/engineering": {
+    "file": "engineering.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplewater.gov/cip": {
+    "file": "cip.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplewater.gov/board": {
+    "file": "board.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplewater.gov/bids": {
+    "file": "bids.html",
+    "content_type": "text/html"
+  }
+}

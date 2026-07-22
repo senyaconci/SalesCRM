@@ -1,0 +1,38 @@
+{
+  "https://www.examplecity.gov": {
+    "file": "home.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplecity.gov/budget": {
+    "file": "budget.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplecity.gov/cip": {
+    "file": "cip.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplecity.gov/public-works": {
+    "file": "public_works.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplecity.gov/procurement": {
+    "file": "procurement.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplecity.gov/about": {
+    "file": "about.html",
+    "content_type": "text/html"
+  },
+  "https://www.examplecity.gov/docs/cip-fy2026.csv": {
+    "file": "cip-fy2026.csv",
+    "content_type": "text/csv"
+  },
+  "https://www.examplecity.gov/docs/adopted-budget-fy2026.pdf": {
+    "file": "adopted-budget-fy2026.pdf",
+    "content_type": "application/pdf"
+  },
+  "https://www.examplecity.gov/finance": {
+    "file": "budget.html",
+    "content_type": "text/html"
+  }
+}

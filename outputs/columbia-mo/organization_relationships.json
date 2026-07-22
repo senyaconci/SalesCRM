@@ -1,0 +1,1394 @@
+{
+  "organization_id": "ORG-60207435b0",
+  "nodes": [
+    {
+      "node_id": "NODE-452dd8dcd8",
+      "name": "City of Columbia, Missouri",
+      "entity_type": "organization",
+      "parent_id": null,
+      "function": "root",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "overall"
+      ],
+      "official_url": "https://como.gov/",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "evidence_id": "EV-a862e8fbc8",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/",
+          "title": "City of Columbia Missouri - Official Government Website",
+          "page": null,
+          "section": null,
+          "quote": "City of Columbia Missouri - Official Government Website skip to main content CoMobile Apps Disable Tips Translate Contact Us Accessibility Accessibility of our Website Show the Accessibility Tools Co…",
+          "retrieved_at": "2026-07-22T04:21:29.871935Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name"
+          ],
+          "confidence": 0.95,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-593c41d555",
+      "name": "Columbia Police",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "police",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "police"
+      ],
+      "official_url": "https://como.gov/police",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-9c968aef0b",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/police",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Columbia Police",
+          "retrieved_at": "2026-07-22T04:21:30.365761Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-2dd643d18e",
+      "name": "Fire Department",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "fire",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "fire"
+      ],
+      "official_url": "https://como.gov/fire",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-e4ce4785c3",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/fire",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Fire Department",
+          "retrieved_at": "2026-07-22T04:21:30.365806Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-9e11247241",
+      "name": "Parking Utility",
+      "entity_type": "utility",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": null,
+      "has_separate_budget": true,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [],
+      "official_url": "https://como.gov/public-works/parking",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-f0c5877af4",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/public-works/parking",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Parking Utility",
+          "retrieved_at": "2026-07-22T04:21:30.365833Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-ac99d23805",
+      "name": "Parks and Recreation",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "parks_and_recreation",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "parks_and_recreation"
+      ],
+      "official_url": "https://como.gov/parks-and-recreation",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-7208e7a2a4",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/parks-and-recreation",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Parks and Recreation",
+          "retrieved_at": "2026-07-22T04:21:30.365857Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-fdaf1ea3cd",
+      "name": "City Council",
+      "entity_type": "governing_body",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "city_council",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "city_council"
+      ],
+      "official_url": "https://como.gov/city-council",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-18fad9fa78",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/city-council",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "City Council",
+          "retrieved_at": "2026-07-22T04:21:30.365879Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-640a372d92",
+      "name": "City Manager’s Office",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "city_manager",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "city_manager"
+      ],
+      "official_url": "https://como.gov/city-managers-office",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-e33bf123a9",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/city-managers-office",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "City Manager’s Office",
+          "retrieved_at": "2026-07-22T04:21:30.365902Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-742af17412",
+      "name": "Community Development",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "community_development",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "community_development"
+      ],
+      "official_url": "https://como.gov/community-development",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-7b4ba93cff",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/community-development",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Community Development",
+          "retrieved_at": "2026-07-22T04:21:30.365921Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-fbb9656006",
+      "name": "Finance",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "finance",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "finance"
+      ],
+      "official_url": "https://como.gov/finance",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-cdc18be5f3",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/finance",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Finance",
+          "retrieved_at": "2026-07-22T04:21:30.365939Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-30d66282ef",
+      "name": "Public Works",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "construction_management",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "construction_management"
+      ],
+      "official_url": "https://como.gov/public-works",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-bcb0dcc36c",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/public-works",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Public Works",
+          "retrieved_at": "2026-07-22T04:21:30.365957Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-8a30f6bc9b",
+      "name": "Utilities",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "utilities",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "utilities"
+      ],
+      "official_url": "https://como.gov/utilities",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-964595c7dd",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/utilities",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Utilities",
+          "retrieved_at": "2026-07-22T04:21:30.365975Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-5e979f8726",
+      "name": "Accounting & Finance",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "finance",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "finance"
+      ],
+      "official_url": "https://como.gov/service/accounting-finance",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-cdb9b3b7ae",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/service/accounting-finance",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Accounting & Finance",
+          "retrieved_at": "2026-07-22T04:21:30.365991Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-949e1b0428",
+      "name": "Contracting & Purchasing",
+      "entity_type": "procurement_office",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "procurement",
+      "has_separate_budget": null,
+      "has_separate_procurement": true,
+      "capital_responsibilities": [
+        "procurement"
+      ],
+      "official_url": "https://como.gov/service/contracting-purchasing",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-8e71159009",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/service/contracting-purchasing",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Contracting & Purchasing",
+          "retrieved_at": "2026-07-22T04:21:30.366006Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-786750d86f",
+      "name": "Budget",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "budget_preparation",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "budget_preparation"
+      ],
+      "official_url": "https://como.gov/budget",
+      "confidence": 0.4,
+      "evidence": [
+        {
+          "evidence_id": "EV-82c2e83753",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/budget",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "/budget",
+          "retrieved_at": "2026-07-22T04:21:30.366026Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.4,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-2fb0b4293e",
+      "name": "Cip",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": null,
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [],
+      "official_url": "https://como.gov/cip",
+      "confidence": 0.4,
+      "evidence": [
+        {
+          "evidence_id": "EV-46513adc4b",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/cip",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "/cip",
+          "retrieved_at": "2026-07-22T04:21:30.366040Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.4,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-0c61716b44",
+      "name": "Bids",
+      "entity_type": "procurement_office",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": null,
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [],
+      "official_url": "https://como.gov/bids",
+      "confidence": 0.4,
+      "evidence": [
+        {
+          "evidence_id": "EV-8a263a787e",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/bids",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "/bids",
+          "retrieved_at": "2026-07-22T04:21:30.366055Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.4,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-9aef204095",
+      "name": "Procurement",
+      "entity_type": "procurement_office",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "procurement",
+      "has_separate_budget": null,
+      "has_separate_procurement": true,
+      "capital_responsibilities": [
+        "procurement"
+      ],
+      "official_url": "https://como.gov/procurement",
+      "confidence": 0.4,
+      "evidence": [
+        {
+          "evidence_id": "EV-774f2a5622",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/procurement",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "/procurement",
+          "retrieved_at": "2026-07-22T04:21:30.366071Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.4,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-feda8f0b07",
+      "name": "Police",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "police",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "police"
+      ],
+      "official_url": "https://como.gov/",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "evidence_id": "EV-ce715a5490",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Police",
+          "retrieved_at": "2026-07-22T04:21:30.366095Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.55,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-4277393bf8",
+      "name": "Fire",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "fire",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "fire"
+      ],
+      "official_url": "https://como.gov/",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "evidence_id": "EV-773254e279",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Fire",
+          "retrieved_at": "2026-07-22T04:21:30.366117Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.55,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-88eb14e8c3",
+      "name": "Public Works Administration",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "construction_management",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "construction_management"
+      ],
+      "official_url": "https://como.gov/public-works/public-works-administration",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-a961e7b21f",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/public-works/public-works-administration",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Public Works Administration",
+          "retrieved_at": "2026-07-22T04:21:30.366136Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-07086b386a",
+      "name": "Street Division",
+      "entity_type": "division",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": null,
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [],
+      "official_url": "https://como.gov/public-works/street-division",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-f937e14335",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/public-works/street-division",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Street Division",
+          "retrieved_at": "2026-07-22T04:21:30.366157Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-6e7e3becd2",
+      "name": "Traffic Management Division",
+      "entity_type": "division",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": null,
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [],
+      "official_url": "https://como.gov/public-works/street-division/traffic-management",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-9511b03ea0",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/public-works/street-division/traffic-management",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Traffic Management Division",
+          "retrieved_at": "2026-07-22T04:21:30.366173Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-d9df23b56e",
+      "name": "Parks And Recreation Commission",
+      "entity_type": "governing_body",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "parks_and_recreation",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "parks_and_recreation"
+      ],
+      "official_url": "https://como.gov/boards/parks-and-recreation-commission",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-a5b2480d15",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/boards/parks-and-recreation-commission",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Parks And Recreation Commission",
+          "retrieved_at": "2026-07-22T04:21:30.366194Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-6448f95a84",
+      "name": "Fire Marshall’s Office",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "fire",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "fire"
+      ],
+      "official_url": "https://como.gov/fire/services",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-0fab6b395c",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/fire/services",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Fire Marshall’s Office",
+          "retrieved_at": "2026-07-22T04:21:30.366223Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-df5a6f4ffd",
+      "name": "Housing and Community Development Commission",
+      "entity_type": "governing_body",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "community_development",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "community_development"
+      ],
+      "official_url": "https://como.gov/boards/housing-and-community-development-commission",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-4aad238b11",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/boards/housing-and-community-development-commission",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Housing and Community Development Commission",
+          "retrieved_at": "2026-07-22T04:21:30.366242Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-de3732fe7d",
+      "name": "Accounting Division",
+      "entity_type": "division",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": null,
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [],
+      "official_url": "https://como.gov/finance/accounting",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-d1ca578674",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/finance/accounting",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Accounting Division",
+          "retrieved_at": "2026-07-22T04:21:30.366261Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-14eebcae18",
+      "name": "Purchasing",
+      "entity_type": "procurement_office",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "procurement",
+      "has_separate_budget": null,
+      "has_separate_procurement": true,
+      "capital_responsibilities": [
+        "procurement"
+      ],
+      "official_url": "https://como.gov/contacts/purchasing",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-058f003c8e",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/contacts/purchasing",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Purchasing",
+          "retrieved_at": "2026-07-22T04:21:30.366276Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-c76f1232ff",
+      "name": "Finance Department",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "finance",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "finance"
+      ],
+      "official_url": "https://como.gov/",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "evidence_id": "EV-2e79ef033f",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Finance Department",
+          "retrieved_at": "2026-07-22T04:21:30.366293Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.55,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-22c72f9435",
+      "name": "Stormwater Engineering",
+      "entity_type": "utility",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "engineering",
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [
+        "engineering"
+      ],
+      "official_url": "https://como.gov/utilities/columbias-stormwater-utility",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-a99c1dd8c1",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/utilities/columbias-stormwater-utility",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Stormwater Engineering",
+          "retrieved_at": "2026-07-22T04:21:30.366318Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-bc9ad678f9",
+      "name": "COLT Railroad",
+      "entity_type": "department",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": null,
+      "has_separate_budget": null,
+      "has_separate_procurement": null,
+      "capital_responsibilities": [],
+      "official_url": "https://como.gov/utilities/columbia-colt-railroad",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-5b468cd77f",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/utilities/columbia-colt-railroad",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "COLT Railroad",
+          "retrieved_at": "2026-07-22T04:21:30.366335Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    },
+    {
+      "node_id": "NODE-4f14241683",
+      "name": "Purchasing Division",
+      "entity_type": "procurement_office",
+      "parent_id": "NODE-452dd8dcd8",
+      "function": "procurement",
+      "has_separate_budget": null,
+      "has_separate_procurement": true,
+      "capital_responsibilities": [
+        "procurement"
+      ],
+      "official_url": "https://como.gov/finance/vendors",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "evidence_id": "EV-0826207fda",
+          "source_id": null,
+          "document_id": null,
+          "url": "https://como.gov/finance/vendors",
+          "title": null,
+          "page": null,
+          "section": null,
+          "quote": "Purchasing Division",
+          "retrieved_at": "2026-07-22T04:21:30.366351Z",
+          "evidence_type": "excerpt",
+          "supports_fields": [
+            "name",
+            "capital_responsibilities"
+          ],
+          "confidence": 0.7,
+          "provenance": "stated"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "relationship_id": "REL-a4baef2254",
+      "from_node_id": "NODE-593c41d555",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-dff0c99b3d",
+      "from_node_id": "NODE-2dd643d18e",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-485780a809",
+      "from_node_id": "NODE-9e11247241",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-017fea4165",
+      "from_node_id": "NODE-ac99d23805",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-e1bb1d8994",
+      "from_node_id": "NODE-fdaf1ea3cd",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-9e2de88d48",
+      "from_node_id": "NODE-640a372d92",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-435bd7490c",
+      "from_node_id": "NODE-742af17412",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-4bfcda7bf8",
+      "from_node_id": "NODE-fbb9656006",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-9e4a4ed120",
+      "from_node_id": "NODE-30d66282ef",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-535ce2cf63",
+      "from_node_id": "NODE-30d66282ef",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "manages_projects_for",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-3b24815ce1",
+      "from_node_id": "NODE-8a30f6bc9b",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-131486f0a4",
+      "from_node_id": "NODE-5e979f8726",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-03f295849d",
+      "from_node_id": "NODE-949e1b0428",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-31af3086b9",
+      "from_node_id": "NODE-949e1b0428",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "procures_for",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-7c0ec4cf3c",
+      "from_node_id": "NODE-786750d86f",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.4,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-993b2facb6",
+      "from_node_id": "NODE-2fb0b4293e",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.4,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-261f446d0f",
+      "from_node_id": "NODE-0c61716b44",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.4,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-506aa9a3c9",
+      "from_node_id": "NODE-9aef204095",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.4,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-5cdbd6ae45",
+      "from_node_id": "NODE-9aef204095",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "procures_for",
+      "confidence": 0.4,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-ccb1712e89",
+      "from_node_id": "NODE-feda8f0b07",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.55,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-dda8fb7373",
+      "from_node_id": "NODE-4277393bf8",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.55,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-86e2d5dd76",
+      "from_node_id": "NODE-88eb14e8c3",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-40a96ff98d",
+      "from_node_id": "NODE-88eb14e8c3",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "manages_projects_for",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-5a32397483",
+      "from_node_id": "NODE-07086b386a",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-6e25721fd4",
+      "from_node_id": "NODE-6e7e3becd2",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-09599f2a41",
+      "from_node_id": "NODE-d9df23b56e",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-fad6267128",
+      "from_node_id": "NODE-6448f95a84",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-1f4d701dde",
+      "from_node_id": "NODE-df5a6f4ffd",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-f32521b266",
+      "from_node_id": "NODE-de3732fe7d",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-30c1d2fd5e",
+      "from_node_id": "NODE-14eebcae18",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-29e0680bcf",
+      "from_node_id": "NODE-14eebcae18",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "procures_for",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-ee624165ca",
+      "from_node_id": "NODE-c76f1232ff",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.55,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-bf5a8fbf3b",
+      "from_node_id": "NODE-22c72f9435",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-8005b06f8e",
+      "from_node_id": "NODE-22c72f9435",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "manages_projects_for",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-e6617456c8",
+      "from_node_id": "NODE-bc9ad678f9",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-8aff791b2c",
+      "from_node_id": "NODE-4f14241683",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "reports_to",
+      "confidence": 0.7,
+      "evidence": []
+    },
+    {
+      "relationship_id": "REL-02445b1400",
+      "from_node_id": "NODE-4f14241683",
+      "to_node_id": "NODE-452dd8dcd8",
+      "relationship_type": "procures_for",
+      "confidence": 0.7,
+      "evidence": []
+    }
+  ],
+  "capital_responsibility_summary": {
+    "overall": [
+      "City of Columbia, Missouri"
+    ],
+    "police": [
+      "Columbia Police",
+      "Police"
+    ],
+    "fire": [
+      "Fire Department",
+      "Fire",
+      "Fire Marshall’s Office"
+    ],
+    "parks_and_recreation": [
+      "Parks and Recreation",
+      "Parks And Recreation Commission"
+    ],
+    "city_council": [
+      "City Council"
+    ],
+    "city_manager": [
+      "City Manager’s Office"
+    ],
+    "community_development": [
+      "Community Development",
+      "Housing and Community Development Commission"
+    ],
+    "finance": [
+      "Finance",
+      "Accounting & Finance",
+      "Finance Department"
+    ],
+    "construction_management": [
+      "Public Works",
+      "Public Works Administration"
+    ],
+    "utilities": [
+      "Utilities"
+    ],
+    "procurement": [
+      "Contracting & Purchasing",
+      "Procurement",
+      "Purchasing",
+      "Purchasing Division"
+    ],
+    "budget_preparation": [
+      "Budget"
+    ],
+    "engineering": [
+      "Stormwater Engineering"
+    ]
+  }
+}

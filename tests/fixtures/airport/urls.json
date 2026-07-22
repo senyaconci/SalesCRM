@@ -1,0 +1,18 @@
+{
+  "https://www.exampleairport.gov": {
+    "file": "home.html",
+    "content_type": "text/html"
+  },
+  "https://www.exampleairport.gov/business": {
+    "file": "business.html",
+    "content_type": "text/html"
+  },
+  "https://www.exampleairport.gov/capital": {
+    "file": "capital.html",
+    "content_type": "text/html"
+  },
+  "https://www.exampleairport.gov/bids": {
+    "file": "bids.html",
+    "content_type": "text/html"
+  }
+}
